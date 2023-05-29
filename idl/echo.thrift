@@ -1,4 +1,4 @@
-namespace go api
+namespace go rpc
 
 struct Request {
 	1: string message

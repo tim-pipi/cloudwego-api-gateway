@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	api "github.com/tim-pipi/cloudwego-api-gateway/kitex_gen/api"
 )
 
@@ -11,5 +12,5 @@ type EchoImpl struct{}
 // Echo implements the EchoImpl interface.
 func (s *EchoImpl) Echo(ctx context.Context, req *api.Request) (resp *api.Response, err error) {
 	// TODO: Your code here...
-	return
+	return &api.Response{Message: req.Message}, nil
 }

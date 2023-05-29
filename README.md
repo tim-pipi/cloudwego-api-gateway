@@ -33,3 +33,8 @@ $ kitex -module "github.com/tim-pipi/cloudwego-api-gateway/rpc-server" -service 
 ```
 
 Update the logic in `handler.go`.
+
+## Running
+In the `http-server` directory: `go run .`
+In the `rpc-server` directory: `go run .`
+Test by using Postman/Insomnia with the following request: `http://127.0.0.1:8080/hello?name=tim`

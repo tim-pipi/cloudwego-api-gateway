@@ -4,11 +4,11 @@ package echo
 
 import (
 	server "github.com/cloudwego/kitex/server"
-	api "github.com/tim-pipi/cloudwego-api-gateway/kitex_gen/api"
+	hello "github.com/tim-pipi/cloudwego-api-gateway/http-server/kitex_gen/hello"
 )
 
 // NewInvoker creates a server.Invoker with the given handler and options.
-func NewInvoker(handler api.Echo, opts ...server.Option) server.Invoker {
+func NewInvoker(handler hello.Echo, opts ...server.Option) server.Invoker {
 	var options []server.Option
 
 	options = append(options, opts...)

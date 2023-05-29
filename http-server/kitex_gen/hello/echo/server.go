@@ -3,11 +3,11 @@ package echo
 
 import (
 	server "github.com/cloudwego/kitex/server"
-	api "github.com/tim-pipi/cloudwego-api-gateway/kitex_gen/api"
+	hello "github.com/tim-pipi/cloudwego-api-gateway/http-server/kitex_gen/hello"
 )
 
 // NewServer creates a server.Server with the given handler and options.
-func NewServer(handler api.Echo, opts ...server.Option) server.Server {
+func NewServer(handler hello.Echo, opts ...server.Option) server.Server {
 	var options []server.Option
 
 	options = append(options, opts...)

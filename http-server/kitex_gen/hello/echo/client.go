@@ -6,12 +6,12 @@ import (
 	"context"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
-	api "github.com/tim-pipi/cloudwego-api-gateway/kitex_gen/api"
+	hello "github.com/tim-pipi/cloudwego-api-gateway/http-server/kitex_gen/hello"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	Echo(ctx context.Context, req *api.Request, callOptions ...callopt.Option) (r *api.Response, err error)
+	Echo(ctx context.Context, req *hello.Request, callOptions ...callopt.Option) (r *hello.Response, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -43,7 +43,7 @@ type kEchoClient struct {
 	*kClient
 }
 
-func (p *kEchoClient) Echo(ctx context.Context, req *api.Request, callOptions ...callopt.Option) (r *api.Response, err error) {
+func (p *kEchoClient) Echo(ctx context.Context, req *hello.Request, callOptions ...callopt.Option) (r *hello.Response, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.Echo(ctx, req)
 }

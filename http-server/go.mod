@@ -1,4 +1,4 @@
-module github.com/tim-pipi/cloudwego-api-gateway
+module github.com/tim-pipi/cloudwego-api-gateway/http-server
 
 go 1.20
 

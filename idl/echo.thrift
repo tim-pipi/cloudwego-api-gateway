@@ -1,7 +1,7 @@
-namespace go rpc
+namespace go hello
 
 struct Request {
-	1: string message
+	1: string Message
 }
 
 struct Response {

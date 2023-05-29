@@ -6,7 +6,7 @@ import (
 	"context"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-	api "github.com/tim-pipi/cloudwego-api-gateway/kitex_gen/api"
+	hello "github.com/tim-pipi/cloudwego-api-gateway/http-server/kitex_gen/hello"
 )
 
 func serviceInfo() *kitex.ServiceInfo {
@@ -17,12 +17,12 @@ var echoServiceInfo = NewServiceInfo()
 
 func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "Echo"
-	handlerType := (*api.Echo)(nil)
+	handlerType := (*hello.Echo)(nil)
 	methods := map[string]kitex.MethodInfo{
 		"echo": kitex.NewMethodInfo(echoHandler, newEchoEchoArgs, newEchoEchoResult, false),
 	}
 	extra := map[string]interface{}{
-		"PackageName": "api",
+		"PackageName": "hello",
 	}
 	svcInfo := &kitex.ServiceInfo{
 		ServiceName:     serviceName,
@@ -36,9 +36,9 @@ func NewServiceInfo() *kitex.ServiceInfo {
 }
 
 func echoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*api.EchoEchoArgs)
-	realResult := result.(*api.EchoEchoResult)
-	success, err := handler.(api.Echo).Echo(ctx, realArg.Req)
+	realArg := arg.(*hello.EchoEchoArgs)
+	realResult := result.(*hello.EchoEchoResult)
+	success, err := handler.(hello.Echo).Echo(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -46,11 +46,11 @@ func echoHandler(ctx context.Context, handler interface{}, arg, result interface
 	return nil
 }
 func newEchoEchoArgs() interface{} {
-	return api.NewEchoEchoArgs()
+	return hello.NewEchoEchoArgs()
 }
 
 func newEchoEchoResult() interface{} {
-	return api.NewEchoEchoResult()
+	return hello.NewEchoEchoResult()
 }
 
 type kClient struct {
@@ -63,10 +63,10 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) Echo(ctx context.Context, req *api.Request) (r *api.Response, err error) {
-	var _args api.EchoEchoArgs
+func (p *kClient) Echo(ctx context.Context, req *hello.Request) (r *hello.Response, err error) {
+	var _args hello.EchoEchoArgs
 	_args.Req = req
-	var _result api.EchoEchoResult
+	var _result hello.EchoEchoResult
 	if err = p.c.Call(ctx, "echo", &_args, &_result); err != nil {
 		return
 	}

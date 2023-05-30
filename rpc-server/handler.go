@@ -2,16 +2,17 @@ package main
 
 import (
 	"context"
-	hello "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/hello"
+	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api"
 )
 
-// EchoImpl implements the last service interface defined in the IDL.
-type EchoImpl struct{}
+// HelloServiceImpl implements the last service interface defined in the IDL.
+type HelloServiceImpl struct{}
 
-// Echo implements the EchoImpl interface.
-func (s *EchoImpl) Echo(ctx context.Context, req *hello.Request) (resp *hello.Response, err error) {
-	resp = &hello.Response{
-		Message: req.Message,
+// HelloMethod implements the HelloServiceImpl interface.
+func (s *HelloServiceImpl) HelloMethod(ctx context.Context, request *api.HelloReq) (resp *api.HelloResp, err error) {
+	// TODO: Your code here...
+	resp = &api.HelloResp{
+		RespBody: "hello, " + request.Name,
 	}
-	return // Implicit return
+	return
 }

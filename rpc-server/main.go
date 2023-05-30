@@ -1,12 +1,12 @@
 package main
 
 import (
-	hello "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/hello/echo"
+	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api/helloservice"
 	"log"
 )
 
 func main() {
-	svr := hello.NewServer(new(EchoImpl))
+	svr := api.NewServer(new(HelloServiceImpl))
 
 	err := svr.Run()
 

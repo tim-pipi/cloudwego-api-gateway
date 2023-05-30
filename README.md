@@ -29,7 +29,7 @@ Update the logic in `biz/handler/api/hello_api.go` (make the Remote Procedure Ca
 ## Kitex
 Navigate to the `rpc-server` directory and generate the Kitex server scaffolding code with the `kitex` command:
 ```shell
-$ kitex -module "github.com/tim-pipi/cloudwego-api-gateway/rpc-server" -service hello ../idl/echo.thrift
+$ kitex -module "github.com/tim-pipi/cloudwego-api-gateway/rpc-server" -service hello ../idl/hello_api.thrift
 ```
 
 Update the logic in `handler.go`.

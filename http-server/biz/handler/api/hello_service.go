@@ -16,18 +16,7 @@ import (
 	api "github.com/tim-pipi/cloudwego-api-gateway/http-server/biz/model/api"
 )
 
-// HelloMethod .
-// @router /hello [GET]
-func HelloMethod(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req api.HelloReq
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	// TODO: Other processing logic here
+func NewHelloClient() genericclient.Client {
 	idlPath := "../idl/hello_api.thrift"
 	p, err := generic.NewThriftFileProvider(idlPath)
 	if err != nil {
@@ -43,6 +32,19 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		klog.Fatalf("new http generic client failed: %v", err)
 	}
+	return cli
+}
+
+// HelloMethod .
+// @router /hello [GET]
+func HelloMethod(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.HelloReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
 
 	jsonBytes, err := json.Marshal(req)
 	if err != nil {
@@ -52,6 +54,7 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 	jsonString := string(jsonBytes)
 
 	// Make the Generic Call
+	cli := NewHelloClient()
 	resp, err := cli.GenericCall(ctx, "HelloMethod", jsonString)
 	if err != nil {
 		klog.Fatalf("remote procedure call failed: %v", err)

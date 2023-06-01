@@ -12,6 +12,8 @@ import (
 	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/cloudwego/kitex/pkg/klog"
 
+	"github.com/cloudwego/kitex/pkg/loadbalance"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	api "github.com/tim-pipi/cloudwego-api-gateway/http-server/biz/model/api"
@@ -34,8 +36,9 @@ func NewHelloClient() genericclient.Client {
 		klog.Fatalf("new etcd resolver failed: %v", err)
 	}
 
-	// cli, err := genericclient.NewClient("hello", g, kclient.WithHostPorts("127.0.0.1:8888"))
-	cli, err := genericclient.NewClient("HelloService", g, kclient.WithResolver(r))
+	lb := loadbalance.NewWeightedBalancer()
+
+	cli, err := genericclient.NewClient("HelloService", g, kclient.WithResolver(r), kclient.WithLoadBalancer(lb))
 	if err != nil {
 		klog.Fatalf("new http generic client failed: %v", err)
 	}

@@ -3,16 +3,15 @@
 package main
 
 import (
-	// "context"
-	// "log"
+	"context"
+	"log"
+
 	// "encoding/json"
 
-	// "github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
-
 	// "github.com/cloudwego/hertz/pkg/common/utils"
 	// "github.com/cloudwego/hertz/pkg/protocol/consts"
-
 	// kclient "github.com/cloudwego/kitex/client"
 	// "github.com/cloudwego/kitex/client/genericclient"
 	// "github.com/cloudwego/kitex/pkg/generic"
@@ -28,37 +27,13 @@ func main() {
 		server.WithHostPorts("127.0.0.1:8080"),
 	)
 
+	h.Use(func(c context.Context, ctx *app.RequestContext) {
+		log.Printf("pre-handler")
+		ctx.Next(c)
+		log.Printf("post-handler")
+	})
+
 	register(h)
-
-	// h.GET("/hello", func(c context.Context, ctx *app.RequestContext) {
-	// 	idlPath := "../idl/hello_api.thrift"
-	// 	p, err := generic.NewThriftFileProvider(idlPath)
-	// 	if err != nil {
-	// 		klog.Fatalf("new thrift file provider failed: %v", err)
-	// 	}
-
-	// 	g, err := generic.JSONThriftGeneric(p)
-	// 	if err != nil {
-	// 		klog.Fatalf("new http pb thrift generic failed: %v", err)
-	// 	}
-
-	// 	cli, err := genericclient.NewClient("hello", g, kclient.WithHostPorts("127.0.0.1:8888"))
-	// 	if err != nil {
-	// 		klog.Fatalf("new http generic client failed: %v", err)
-	// 	}
-
-	// 	name, _ := ctx.GetQuery("name")
-	// 	log.Println("name: ", name)
-
-	// 	resp, err := cli.GenericCall(c, "HelloMethod", utils.H{"name": name})
-
-	// 	if err != nil {
-	// 		klog.Fatalf("remote procedure call failed: %v", err)
-	// 		return
-	// 	}
-
-	// 	ctx.JSON(consts.StatusOK, resp)
-	// })
 
 	h.Spin()
 }

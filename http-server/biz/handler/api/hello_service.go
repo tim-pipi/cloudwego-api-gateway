@@ -4,9 +4,10 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 
 	kclient "github.com/cloudwego/kitex/client"
+	etcd "github.com/kitex-contrib/registry-etcd"
+
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -28,7 +29,13 @@ func NewHelloClient() genericclient.Client {
 		klog.Fatalf("new http pb thrift generic failed: %v", err)
 	}
 
-	cli, err := genericclient.NewClient("hello", g, kclient.WithHostPorts("127.0.0.1:8888"))
+	r, err := etcd.NewEtcdResolver([]string{"localhost:7000"})
+	if err != nil {
+		klog.Fatalf("new etcd resolver failed: %v", err)
+	}
+
+	// cli, err := genericclient.NewClient("hello", g, kclient.WithHostPorts("127.0.0.1:8888"))
+	cli, err := genericclient.NewClient("HelloService", g, kclient.WithResolver(r))
 	if err != nil {
 		klog.Fatalf("new http generic client failed: %v", err)
 	}
@@ -46,16 +53,11 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	jsonBytes, err := json.Marshal(req)
-	if err != nil {
-		klog.Fatalf("json marshal failed: %v", err)
-	}
-
-	jsonString := string(jsonBytes)
+	jsonBody := string(c.Request.BodyBytes())
 
 	// Make the Generic Call
 	cli := NewHelloClient()
-	resp, err := cli.GenericCall(ctx, "HelloMethod", jsonString)
+	resp, err := cli.GenericCall(ctx, "HelloMethod", jsonBody)
 	if err != nil {
 		klog.Fatalf("remote procedure call failed: %v", err)
 		return

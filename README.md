@@ -7,7 +7,7 @@ This repository contains the code for the implementation of an API Gateway for O
 - System Design Document (to be added)
 
 ## API Gateway Diagram
-![API Gateway Diagram](docs/gateway.png)
+![API Gateway Diagram](gateway.png)
 
 # Installation
 

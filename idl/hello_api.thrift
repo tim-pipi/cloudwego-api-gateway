@@ -9,6 +9,6 @@ struct HelloResp {
 }
 
 service HelloService {
-    HelloResp HelloMethod(1: HelloReq request) (api.get="/hello")
+    HelloResp HelloMethod(1: HelloReq request) (api.get="/HelloService/HelloMethod")
 }
 

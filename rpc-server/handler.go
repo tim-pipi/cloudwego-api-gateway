@@ -19,3 +19,11 @@ func (s *HelloServiceImpl) HelloMethod(ctx context.Context, request *api.HelloRe
 	}
 	return
 }
+
+// Echo Method returns the message sent by the client
+func (s *HelloServiceImpl) Echo(ctx context.Context, request *api.EchoReq) (resp *api.EchoResp, err error) {
+	resp = &api.EchoResp{
+		Response: request.Message,
+	}
+	return
+}

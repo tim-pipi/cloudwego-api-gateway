@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	// "time"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -48,6 +49,7 @@ func main() {
 			server.WithServiceAddr(addr),
 			// Middleware to log which server is being called
 			server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("HelloService: Server %d called", count))),
+			// server.WithReadWriteTimeout(100* time.Second),
 		)
 		if err := svr.Run(); err != nil {
 			log.Println(err.Error())

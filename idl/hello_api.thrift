@@ -8,7 +8,15 @@ struct HelloResp {
     1: string RespBody
 }
 
-service HelloService {
-    HelloResp HelloMethod(1: HelloReq request) (api.get="/hello")
+struct EchoReq {
+    1:required string message
 }
 
+struct EchoResp {
+    1: string response
+}
+
+service HelloService {
+    HelloResp HelloMethod(1: HelloReq request) (api.get="/HelloService/HelloMethod")
+    EchoResp echo(1: EchoReq request) (api.get="/HelloService/echo")
+}

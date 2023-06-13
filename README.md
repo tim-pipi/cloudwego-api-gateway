@@ -35,7 +35,7 @@ Test with Postman/Insomnia using the following request: `http://127.0.0.1:8080/H
 
 ```json
 {
-    "Name": "Timothy"
+  "Name": "Timothy"
 }
 ```
 
@@ -74,7 +74,6 @@ hz new -module "github.com/tim-pipi/cloudwego-api-gateway/http-server" -idl ../i
 go mod tidy
 ```
 
-
 Update the logic in `biz/handler/api/[YOUR_IDL_FILE].go` (make the Remote Procedure Call).
 
 ### Kitex
@@ -90,6 +89,22 @@ Notes:
 - The `-service` flag generates the scaffold code for creating a new client and
   server in the `rpc-server` directory.
 - `-module` flag generates the `kitex_gen` directory
+
+## Generating From Template
+
+To generate the RPC Server scaffolding code from template, run the following command:
+
+```shell
+$ mkdir NEW_DIRECTORY
+$ cd NEW_DIRECTORY
+$ kitex -module "github.com/tim-pipi/cloudwego-api-gateway/NEW_DIRECTORY" --template-dir
+ ../templates ../idl/hello_api.thrift
+go: creating new go.mod: module github.com/tim-pipi/cloudwego-api-gateway/test
+Adding apache/thrift@v0.13.0 to go.mod for generated code .......... Done
+$ go mod tidy
+```
+
+Fill in the handler logic in `handler.go`.
 
 ## Updating Services
 

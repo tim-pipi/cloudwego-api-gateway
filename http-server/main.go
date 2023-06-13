@@ -15,9 +15,9 @@ func main() {
 	)
 
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
-		log.Printf("Sample middleware pre-handler")
+		// log.Printf("Sample middleware pre-handler")
 		ctx.Next(c)
-		log.Printf("Sample middleware post-handler")
+		log.Printf("Request status code: %d", ctx.Response.StatusCode())
 	})
 
 	register(h)

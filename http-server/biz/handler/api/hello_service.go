@@ -52,6 +52,7 @@ func NewHelloClient(idlPath string) *HelloClient {
 
 func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method string) (err error) {
 	jsonBody := string(c.Request.BodyBytes())
+	klog.Info("jsonBody: ", jsonBody)
 
 	// Make the Generic Call
 	resp, err := cli.GenericCall(ctx, method, jsonBody)
@@ -78,6 +79,7 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 	var req api.HelloReq
 	err = c.BindAndValidate(&req)
 	if err != nil {
+		klog.Info("Bad request: ", err.Error())
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
@@ -94,6 +96,7 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 	var req api.EchoReq
 	err = c.BindAndValidate(&req)
 	if err != nil {
+		klog.Info("Bad request: ", err.Error())
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}

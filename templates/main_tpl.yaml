@@ -22,10 +22,11 @@ body: |-
 
   // Constants for testing purposes
   const NUMSERVERS = 5
+  const DEFAULT_ETCD_PORT = 2380
 
   func main() {
     // Create the service registry
-    r, err := etcd.NewEtcdRegistry([]string{"localhost:7000"}) // r should not be reused.
+    r, err := etcd.NewEtcdRegistry([]string{fmt.Sprintf("localhost:%d", DEFAULT_ETCD_PORT)}) // r should not be reused.
     if err != nil {
       klog.Error(err.Error())
     }

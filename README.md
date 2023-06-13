@@ -13,6 +13,8 @@ This repository contains the code for the implementation of an API Gateway for O
 
 ## Installation
 
+## Hertz and Kitex
+
 Follow the instructions for installing [Hertz](https://www.cloudwego.io/docs/hertz/getting-started/) and
 [Kitex](https://www.cloudwego.io/docs/kitex/getting-started/).
 
@@ -29,7 +31,7 @@ In the `rpc-server` directory: `go run .`
 
 In your terminal, run: `etcd --advertise-client-urls http://localhost:7000 --listen-client-urls http://127.0.0.1:7000`
 
-Test with Postman/Insomnia using the following request: `http://127.0.0.1:8080/hello` with this JSON body:
+Test with Postman/Insomnia using the following request: `http://127.0.0.1:8080/HelloService/HelloMethod` with this JSON body:
 
 ```json
 {
@@ -44,6 +46,25 @@ Test with Postman/Insomnia using the following request: `http://127.0.0.1:8080/h
 Store your IDL file in the `/idl` directory.
 Ensure that your IDL file follows the [Thrift IDL Annotation Standard](https://www.cloudwego.io/docs/kitex/tutorials/advanced-feature/generic-call/thrift_idl_annotation_standards/).
 
+Notes:
+
+- Method name in IDL file is **case-sensitive**.
+- Require a type alias as the request and return type.
+
+```thrift
+struct EchoReq {
+    1:required string message
+}
+
+struct EchoResp {
+    1: string response
+}
+
+service EchoService {
+    EchoResp echo(EchoReq) (api.get="/EchoService/echo")
+}
+```
+
 ### Hertz
 
 Navigate to the `http-server` directory and generate the Hertz scaffolding code with the `hz new` command:
@@ -53,11 +74,6 @@ hz new -module "github.com/tim-pipi/cloudwego-api-gateway/http-server" -idl ../i
 go mod tidy
 ```
 
-To update the code after changes in the IDL:
-
-```shell
-hz update -idl ../idl/[YOUR_IDL_FILE].thrift
-```
 
 Update the logic in `biz/handler/api/[YOUR_IDL_FILE].go` (make the Remote Procedure Call).
 
@@ -68,6 +84,38 @@ Navigate to the `rpc-server` directory and generate the Kitex server scaffolding
 ```shell
 kitex -module "github.com/tim-pipi/cloudwego-api-gateway/rpc-server" -service hello ../idl/[YOUR_IDL_FILE].thrift
 ```
+
+Notes:
+
+- The `-service` flag generates the scaffold code for creating a new client and
+  server in the `rpc-server` directory.
+- `-module` flag generates the `kitex_gen` directory
+
+## Updating Services
+
+Run `./update.sh` in the root directory.
+
+If you would like to manually update,
+
+### Updating Hertz
+
+To update the code after changes in the IDL:
+
+```shell
+hz update -idl ../idl/[YOUR_IDL_FILE].thrift
+```
+
+**Updating Behaviour**:
+
+- No Custom Path:
+  - Appends any new code to the **existing file**.
+    - If you rename a method, the old method's code remains in the file.
+  - Easier to handle
+  - Might create duplicated code
+- Custom Path
+  - Guaranteed "clean code"
+  - Reimplement handler logic each time
+  - Confusing to keep track of directories after a while
 
 Update the logic in `handler.go`.
 

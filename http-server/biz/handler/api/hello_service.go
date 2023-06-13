@@ -3,7 +3,6 @@ package api
 
 import (
 	"context"
-	// "time"
 
 	kclient "github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -11,17 +10,18 @@ import (
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/cloudwego/kitex/pkg/klog"
-
 	"github.com/cloudwego/kitex/pkg/loadbalance"
-
-	// "github.com/cloudwego/kitex/pkg/connpool"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	api "github.com/tim-pipi/cloudwego-api-gateway/http-server/biz/model/api"
 )
 
-func NewHelloClient(idlPath string) genericclient.Client {
+type HelloClient struct {
+	genericclient.Client
+}
+
+func NewHelloClient(idlPath string) *HelloClient {
 	p, err := generic.NewThriftFileProvider(idlPath)
 	if err != nil {
 		klog.Fatalf("new thrift file provider failed: %v", err)
@@ -39,23 +39,33 @@ func NewHelloClient(idlPath string) genericclient.Client {
 
 	lb := loadbalance.NewWeightedRoundRobinBalancer()
 
-	// cfg := connpool.IdleConfig{
-	// 	MaxIdlePerAddress: 10,
-	// 	MaxIdleGlobal:     1000,
-	// 	MaxIdleTimeout:    60 * time.Second,
-	// }
-
 	cli, err := genericclient.NewClient("HelloService", g,
 		kclient.WithResolver(r),
 		kclient.WithLoadBalancer(lb),
-		// kclient.WithLongConnection(cfg),
-		// kclient.WithShortConnection(),
 	)
 	if err != nil {
 		klog.Fatalf("new http generic client failed: %v", err)
 	}
 
-	return cli
+	return &HelloClient{cli}
+}
+
+func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method string) (err error) {
+	jsonBody := string(c.Request.BodyBytes())
+
+	// Make the Generic Call
+	resp, err := cli.GenericCall(ctx, method, jsonBody)
+	if err != nil {
+		klog.Info("remote procedure call failed: %v", err)
+		// Retries the request if error
+		// This is because the connection to the RPC server has a timeout
+		// if the connection is idle for a long time.
+		resp, _ = cli.GenericCall(ctx, method, jsonBody)
+	}
+
+	c.JSON(consts.StatusOK, resp)
+
+	return
 }
 
 var cli = NewHelloClient("../idl/hello_api.thrift")
@@ -74,19 +84,19 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 	klog.Info("req path: ", string(c.Path()))
 	klog.Info("req full path: ", c.FullPath())
 
-	jsonBody := string(c.Request.BodyBytes())
+	cli.Call(ctx, c, "HelloMethod")
+}
 
-	// Make the Generic Call
-	// cli := NewHelloClient("../idl/hello_api.thrift")
-
-	resp, err := cli.GenericCall(ctx, "HelloMethod", jsonBody)
+// Echo .
+// @router /HelloService/echo [GET]
+func Echo(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req api.EchoReq
+	err = c.BindAndValidate(&req)
 	if err != nil {
-		klog.Info("remote procedure call failed: %v", err)
-		// Retries the request if error
-		// This is because the connection to the RPC server has a timeout
-		// if the connection is idle for a long time.
-		resp, _ = cli.GenericCall(ctx, "HelloMethod", jsonBody)
+		c.String(consts.StatusBadRequest, err.Error())
+		return
 	}
-
-	c.JSON(consts.StatusOK, resp)
+	
+	cli.Call(ctx, c, "echo")
 }

@@ -1,0 +1,5 @@
+---
+# This file provides the main services for the application.
+Services:
+  - name: 'HelloService'
+    idl: './idl/hello_api.thrift'

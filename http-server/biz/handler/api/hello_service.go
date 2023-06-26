@@ -54,6 +54,15 @@ func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method 
 	jsonBody := string(c.Request.BodyBytes())
 	klog.Info("jsonBody: ", jsonBody)
 
+	// Get the full path of the url
+	fullPath := c.FullPath()
+
+	// Split the full path by the "/"
+	// e.g. /student/hello will return ["student", "hello"]
+	service := Split(fullPath, "/")
+	serviceName := service[0]
+	serviceMethod := service[1]
+
 	// Make the Generic Call
 	resp, err := cli.GenericCall(ctx, method, jsonBody)
 	if err != nil {
@@ -100,6 +109,6 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	
+
 	cli.Call(ctx, c, "echo")
 }

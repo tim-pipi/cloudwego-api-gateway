@@ -3,6 +3,7 @@ package api
 
 import (
 	"context"
+    "strings"
 
 	kclient "github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -58,10 +59,13 @@ func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method 
 	fullPath := c.FullPath()
 
 	// Split the full path by the "/"
-	// e.g. /student/hello will return ["student", "hello"]
-	service := Split(fullPath, "/")
-	serviceName := service[0]
-	serviceMethod := service[1]
+	// e.g. /student/hello will return ["", "student", "hello"]
+	service := strings.Split(fullPath, "/")
+	serviceName := service[1]
+	serviceMethod := service[2]
+    
+    klog.Info("serviceName: ", serviceName)
+    klog.Info("serviceMethod: ", serviceMethod)
 
 	// Make the Generic Call
 	resp, err := cli.GenericCall(ctx, method, jsonBody)

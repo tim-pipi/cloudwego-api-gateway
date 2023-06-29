@@ -21,7 +21,7 @@ const NUMSERVERS = 5
 
 func main() {
 	// Create the service registry
-	r, err := etcd.NewEtcdRegistry([]string{"localhost:7000"}) // r should not be reused.
+	r, err := etcd.NewEtcdRegistry([]string{"localhost:2379"}) // r should not be reused.
 	if err != nil {
 		log.Fatal(err)
 	}

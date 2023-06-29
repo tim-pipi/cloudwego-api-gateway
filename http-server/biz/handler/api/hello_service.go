@@ -33,7 +33,7 @@ func NewHelloClient(idlPath string) *HelloClient {
 		klog.Fatalf("new http pb thrift generic failed: %v", err)
 	}
 
-	r, err := etcd.NewEtcdResolver([]string{"localhost:7000"})
+	r, err := etcd.NewEtcdResolver([]string{"localhost:2379"})
 	if err != nil {
 		klog.Fatalf("new etcd resolver failed: %v", err)
 	}

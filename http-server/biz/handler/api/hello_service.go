@@ -3,94 +3,16 @@ package api
 
 import (
 	"context"
-	"strings"
 
-	kclient "github.com/cloudwego/kitex/client"
-	etcd "github.com/kitex-contrib/registry-etcd"
-
-	"github.com/cloudwego/kitex/client/genericclient"
-	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/cloudwego/kitex/pkg/loadbalance"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	api "github.com/tim-pipi/cloudwego-api-gateway/http-server/biz/model/api"
+	"github.com/tim-pipi/cloudwego-api-gateway/http-server/clientpool"
 )
 
-type HelloClient struct {
-	genericclient.Client
-}
-
-func NewHelloClient(idlPath string) *HelloClient {
-	p, err := generic.NewThriftFileProvider(idlPath)
-	if err != nil {
-		klog.Fatalf("new thrift file provider failed: %v", err)
-	}
-
-	g, err := generic.JSONThriftGeneric(p)
-	if err != nil {
-		klog.Fatalf("new http pb thrift generic failed: %v", err)
-	}
-
-	r, err := etcd.NewEtcdResolver([]string{"localhost:2379"})
-	if err != nil {
-		klog.Fatalf("new etcd resolver failed: %v", err)
-	}
-
-	lb := loadbalance.NewWeightedRoundRobinBalancer()
-
-	cli, err := genericclient.NewClient("HelloService", g,
-		kclient.WithResolver(r),
-		kclient.WithLoadBalancer(lb),
-	)
-	if err != nil {
-		klog.Fatalf("new http generic client failed: %v", err)
-	}
-
-	return &HelloClient{cli}
-}
-
-func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method string) (err error) {
-	jsonBody := string(c.Request.BodyBytes())
-	klog.Info("jsonBody: ", jsonBody)
-
-	// Get the full path of the url
-	fullPath := c.FullPath()
-
-	// Split the full path by the "/"
-	// e.g. /student/hello will return ["", "student", "hello"]
-	service := strings.Split(fullPath, "/")
-	serviceName := service[1]
-	serviceMethod := service[2]
-
-	klog.Info("serviceName: ", serviceName)
-	klog.Info("serviceMethod: ", serviceMethod)
-
-	// Make the Generic Call
-	resp, err := cli.GenericCall(ctx, method, jsonBody)
-	if err != nil {
-		klog.Info("remote procedure call failed: %v", err)
-		// Retries the request if error
-		// This is because the connection to the RPC server has a timeout
-		// if the connection is idle for a long time.
-		resp, _ = cli.GenericCall(ctx, method, jsonBody)
-	}
-	klog.Info("Response is:", resp)
-
-	// Type assertion to check if resp is string
-	respString, ok := resp.(string)
-	if !ok {
-		klog.Error("Response is not a string:", resp)
-	}
-
-	c.String(consts.StatusOK, respString)
-	c.SetContentType("application/json")
-
-	return
-}
-
-var cli = NewHelloClient("../idl/hello_api.thrift")
+var idlPath = "../idl/hello_api.thrift"
 
 // HelloMethod .
 // @router /hello [GET]
@@ -107,7 +29,7 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 	klog.Info("req path: ", string(c.Path()))
 	klog.Info("req full path: ", c.FullPath())
 
-	cli.Call(ctx, c, "HelloMethod")
+	clientpool.Call(ctx, c, idlPath)
 }
 
 // Echo .
@@ -122,5 +44,5 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	cli.Call(ctx, c, "echo")
+	clientpool.Call(ctx, c, idlPath)
 }

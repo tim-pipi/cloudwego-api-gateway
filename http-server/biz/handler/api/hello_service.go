@@ -3,7 +3,7 @@ package api
 
 import (
 	"context"
-    "strings"
+	"strings"
 
 	kclient "github.com/cloudwego/kitex/client"
 	etcd "github.com/kitex-contrib/registry-etcd"
@@ -63,9 +63,9 @@ func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method 
 	service := strings.Split(fullPath, "/")
 	serviceName := service[1]
 	serviceMethod := service[2]
-    
-    klog.Info("serviceName: ", serviceName)
-    klog.Info("serviceMethod: ", serviceMethod)
+
+	klog.Info("serviceName: ", serviceName)
+	klog.Info("serviceMethod: ", serviceMethod)
 
 	// Make the Generic Call
 	resp, err := cli.GenericCall(ctx, method, jsonBody)
@@ -76,8 +76,16 @@ func (cli *HelloClient) Call(ctx context.Context, c *app.RequestContext, method 
 		// if the connection is idle for a long time.
 		resp, _ = cli.GenericCall(ctx, method, jsonBody)
 	}
+	klog.Info("Response is:", resp)
 
-	c.JSON(consts.StatusOK, resp)
+	// Type assertion to check if resp is string
+	respString, ok := resp.(string)
+	if !ok {
+		klog.Error("Response is not a string:", resp)
+	}
+
+	c.String(consts.StatusOK, respString)
+	c.SetContentType("application/json")
 
 	return
 }

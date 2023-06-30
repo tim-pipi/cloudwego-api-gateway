@@ -18,6 +18,8 @@ This repository contains the code for the implementation of an API Gateway for O
 Follow the instructions for installing [Hertz](https://www.cloudwego.io/docs/hertz/getting-started/) and
 [Kitex](https://www.cloudwego.io/docs/kitex/getting-started/).
 
+Install the [thrift-gen-validator](https://github.com/cloudwego/thrift-gen-validator).
+
 ### Installing etcd
 
 - Download the latest version of `etcd` from the **Releases** [page](https://github.com/etcd-io/etcd/releases/).
@@ -98,7 +100,7 @@ To generate the RPC Server scaffolding code from template, run the following com
 $ mkdir NEW_DIRECTORY
 $ cd NEW_DIRECTORY
 $ kitex -module "github.com/tim-pipi/cloudwego-api-gateway/NEW_DIRECTORY" --template-dir
- ../templates ../idl/hello_api.thrift
+ ../templates --thrift-plugin validator ../idl/hello_api.thrift
 go: creating new go.mod: module github.com/tim-pipi/cloudwego-api-gateway/test
 Adding apache/thrift@v0.13.0 to go.mod for generated code .......... Done
 $ go mod tidy

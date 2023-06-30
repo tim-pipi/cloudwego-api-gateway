@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -39,6 +40,32 @@ func CommonMiddleware(next endpoint.Endpoint) endpoint.Endpoint {
 		}
 		// get real response
 		klog.Infof("real response: %+v\n", resp.(result).GetResult())
+		return nil
+	}
+}
+
+func ValidatorMW(next endpoint.Endpoint) endpoint.Endpoint {
+	return func(ctx context.Context, args, result interface{}) (err error) {
+		if gfa, ok := args.(interface{ GetFirstArgument() interface{} }); ok {
+			req := gfa.GetFirstArgument()
+			if rv, ok := req.(interface{ IsValid() error }); ok {
+				if err := rv.IsValid(); err != nil {
+					return fmt.Errorf("request data is not valid:%w", err)
+				}
+			}
+		}
+		err = next(ctx, args, result)
+		if err != nil {
+			return err
+		}
+		if gr, ok := result.(interface{ GetResult() interface{} }); ok {
+			resp := gr.GetResult()
+			if rv, ok := resp.(interface{ IsValid() error }); ok {
+				if err := rv.IsValid(); err != nil {
+					return fmt.Errorf("response data is not valid:%w", err)
+				}
+			}
+		}
 		return nil
 	}
 }

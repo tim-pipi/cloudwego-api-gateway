@@ -33,19 +33,30 @@ func Call(ctx context.Context, c *app.RequestContext, idlPath string) {
 	klog.Info("Request Body: ", jsonBody)
 
 	cli := getClient(c, idlPath)
-	serviceMethod := getServiceMethod(c)
+	serviceMethod := c.Param("ServiceMethod")
+	klog.Info("Service Method: ", serviceMethod)
 
-	// Make the Generic Call
+	// Kitex RPC server will return error
 	resp, err := cli.GenericCall(ctx, serviceMethod, jsonBody)
 	if err != nil {
-		klog.Info("remote procedure call failed: %v", err)
-		// Retries the request if error
-		// This is because the connection to the RPC server has a timeout
-		// if the connection is idle for a long time.
-		resp, _ = cli.GenericCall(ctx, serviceMethod, jsonBody)
-	}
-	klog.Info("Response body: ", resp)
+		klog.Error("Remote procedure call failed: ", err)
 
+		// Append to errors
+		c.Error(err)
+		errorJSON := map[string]interface{}{
+			"error": c.Errors.Errors(),
+		}
+
+		if strings.Contains(err.Error(), "missing method") {
+			c.JSON(consts.StatusNotFound, errorJSON)
+			return
+		}
+		c.JSON(consts.StatusBadRequest, errorJSON)
+
+		return
+	}
+
+	klog.Info("Response body: ", resp)
 	respString, ok := resp.(string)
 	if !ok {
 		klog.Error("Response is not a string:", resp)
@@ -60,7 +71,8 @@ func getClient(c *app.RequestContext, idlPath string) genericclient.Client {
 	clientPool.mutex.Lock()
 	defer clientPool.mutex.Unlock()
 
-	serviceName := getServiceName(c)
+	serviceName := c.Param("ServiceName")
+	klog.Info("Service Name: ", serviceName)
 	client, ok := clientPool.serviceMap[serviceName]
 
 	if !ok {
@@ -69,28 +81,6 @@ func getClient(c *app.RequestContext, idlPath string) genericclient.Client {
 	}
 
 	return client
-}
-
-// getServiceName returns the service name from the full path of the url
-func getServiceName(c *app.RequestContext) string {
-	fullPath := c.FullPath()
-
-	service := strings.Split(fullPath, "/")
-	serviceName := service[1]
-	klog.Info("Service Name: ", serviceName)
-
-	return serviceName
-}
-
-// getServiceMethod returns the service method from the full path of the url
-func getServiceMethod(c *app.RequestContext) string {
-	fullPath := c.FullPath()
-
-	service := strings.Split(fullPath, "/")
-	serviceMethod := service[2]
-	klog.Info("Service Method: ", serviceMethod)
-
-	return serviceMethod
 }
 
 func newClient(idlPath string, serviceName string) genericclient.Client {

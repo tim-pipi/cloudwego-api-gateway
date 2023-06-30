@@ -9,7 +9,7 @@ struct HelloResp {
 }
 
 struct EchoReq {
-    1: required string message
+    1: required string message (vt.min_size = "1")
 }
 
 struct EchoResp {

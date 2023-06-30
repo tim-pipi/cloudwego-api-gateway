@@ -3,10 +3,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/tim-pipi/cloudwego-api-gateway/http-server/clientpool"
 )
 
 func main() {
@@ -20,6 +24,24 @@ func main() {
 		log.Printf("Request status code: %d", ctx.Response.StatusCode())
 	})
 
-	register(h)
+	h.Any("/:ServiceName/:ServiceMethod", func(c context.Context, ctx *app.RequestContext) {
+		// Check that JSON is valid
+		var req interface{}
+		err := json.Unmarshal(ctx.Request.BodyBytes(), &req)
+		if err != nil {
+			klog.Error("Invalid JSON: ", err.Error())
+			ctx.Error(err)
+			errorJSON := map[string]interface{}{
+				"error": ctx.Errors.Errors(),
+			}
+
+			ctx.JSON(consts.StatusBadRequest, errorJSON)
+			return
+		}
+
+		clientpool.Call(c, ctx, "../idl/hello_api.thrift")
+	})
+
+	// register(h)
 	h.Spin()
 }

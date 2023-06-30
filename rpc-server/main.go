@@ -48,7 +48,7 @@ func main() {
 			}),
 			server.WithServiceAddr(addr),
 			server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("HelloService: Server %d called", count))),
-			// server.WithReadWriteTimeout(100* time.Second),
+			server.WithMiddleware(middleware.ValidatorMW),
 		)
 
 		if err := svr.Run(); err != nil {

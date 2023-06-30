@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api"
+	"fmt"
+
 	"github.com/cloudwego/kitex/pkg/klog"
+	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api"
 )
 
 var _ = klog.Info
@@ -13,7 +15,11 @@ type HelloServiceImpl struct{}
 
 // HelloMethod implements the HelloServiceImpl interface.
 func (s *HelloServiceImpl) HelloMethod(ctx context.Context, request *api.HelloReq) (resp *api.HelloResp, err error) {
-	// TODO: Your code here...
+	if request.Name == "" {
+		err = fmt.Errorf("name is required")
+		return
+	}	
+	
 	resp = &api.HelloResp{
 		RespBody: "hello, " + request.Name,
 	}

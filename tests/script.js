@@ -28,5 +28,9 @@ export default function () {
 			r.status === 200 && r.body.includes(message),
 	});
 
+	const test = JSON.parse(res.body)
+	console.log(test)
+	console.log(typeof(test))
+
 	sleep(1);
 }

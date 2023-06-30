@@ -1,15 +1,15 @@
 namespace go api
 
 struct HelloReq {
-    1: string Name (api.query="name")
-}
+    1: required string Name (api.query="name")
+}   
 
 struct HelloResp {
     1: string RespBody
 }
 
 struct EchoReq {
-    1:required string message
+    1: required string message
 }
 
 struct EchoResp {

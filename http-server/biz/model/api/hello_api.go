@@ -9,7 +9,7 @@ import (
 )
 
 type HelloReq struct {
-	Name string `thrift:"Name,1" json:"Name" query:"name"`
+	Name string `thrift:"Name,1,required" json:"Name,required" query:"name,required"`
 }
 
 func NewHelloReq() *HelloReq {
@@ -28,6 +28,7 @@ func (p *HelloReq) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetName bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -48,6 +49,7 @@ func (p *HelloReq) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
+				issetName = true
 			} else {
 				if err = iprot.Skip(fieldTypeId); err != nil {
 					goto SkipFieldError
@@ -67,6 +69,10 @@ func (p *HelloReq) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetName {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
@@ -81,6 +87,8 @@ ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_HelloReq[fieldId]))
 }
 
 func (p *HelloReq) ReadField1(iprot thrift.TProtocol) error {

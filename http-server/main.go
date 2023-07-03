@@ -28,6 +28,7 @@ func main() {
 		// Check that JSON is valid
 		var req interface{}
 		err := json.Unmarshal(ctx.Request.BodyBytes(), &req)
+
 		if err != nil {
 			klog.Error("Invalid JSON: ", err.Error())
 			ctx.Error(err)
@@ -39,9 +40,9 @@ func main() {
 			return
 		}
 
+		// TODO: Add a map of ServiceName to Thrift file
 		clientpool.Call(c, ctx, "../idl/hello_api.thrift")
 	})
 
-	// register(h)
 	h.Spin()
 }

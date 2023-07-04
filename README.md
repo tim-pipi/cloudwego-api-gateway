@@ -1,10 +1,37 @@
-# cloudwego-api-gateway
+# CloudWeGo API Gateway
 
 This repository contains the code for the implementation of an API Gateway for Orbital 2023.
 
-## Links
+CloudWeGo API Gateway is an API Gateway based on CloudWeGo projects, using technologies, such as Kitex - RPC framework,
+and Hertz - HTTP framework. This API Gateway can handle JSON-encoded HTTP requests and utilize Kitex's Generic-Call feature 
+to convert these requests into Thrift binary format. The API Gateway will then route the requests to one of the backend 
+RPC servers obtained from the registry center.
 
+## CloudWeGo
+[CloudWeGo](https://www.cloudwego.io/) is an open-source middleware set launched by ByteDance that can be used to
+quickly build enterprise-class cloud native architectures. It contains many components,
+including the RPC framework Kitex, the HTTP framework Hertz, the basic network library
+Netpoll, thrfitgo, etc. By combining the community's excellent open source products,
+developers can quickly build a complete set of microservices systems.
+
+## Hertz
+[Hertz](https://www.cloudwego.io/docs/hertz/) [həːts] is a high-performance, high-usability, extensible HTTP framework for Go. It’s
+designed to make it easy for developers to build microservices.
+Inspired by other open source frameworks, combined with the unique challenges we met in
+ByteDance, Hertz has become production-ready and has powered ByteDance’s internal
+services over the years.
+
+## Kitex
+[Kitex](https://www.cloudwego.io/docs/kitex/) [kaɪt’eks] is a high-performance and strong-extensibility Golang RPC framework that
+helps developers build microservices. If performance and extensibility are the main concerns
+when you develop microservices, Kitex can be a good choice.
+
+
+## Useful Links
+
+- Deployed App (to be added)
 - [Milestone I Submission](https://drive.google.com/drive/u/0/folders/1mm--TjLNb5FZXAquGjFT_0S7Nf_3PMf1)
+- [Milestone II Submission](https://drive.google.com/drive/folders/1ZqQKP6_HXSqQ5CiKRAptCXUhe7ADz-Yu?usp=drive_link)
 - System Design Document (to be added)
 
 ## API Gateway Diagram
@@ -13,17 +40,18 @@ This repository contains the code for the implementation of an API Gateway for O
 
 ## Installation
 
-## Hertz and Kitex
+Please install the following to get started with the project:
 
-Follow the instructions for installing [Hertz](https://www.cloudwego.io/docs/hertz/getting-started/) and
-[Kitex](https://www.cloudwego.io/docs/kitex/getting-started/).
-
-Install the [thrift-gen-validator](https://github.com/cloudwego/thrift-gen-validator).
+- [Hertz](https://www.cloudwego.io/docs/hertz/getting-started/)
+- [Kitex](https://www.cloudwego.io/docs/kitex/getting-started/)
+- [thrift-gen-validator](https://github.com/cloudwego/thrift-gen-validator)
+- [etcd](https://github.com/etcd-io/etcd/releases/) for Service Registry (see below for further guide)
+- [Postman](https://www.postman.com/downloads/) or [Insomnia](https://insomnia.rest/download) for API testing.
 
 ### Installing etcd
 
-- Download the latest version of `etcd` from the **Releases** [page](https://github.com/etcd-io/etcd/releases/).
-- Add the directory to your System's PATH. See [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) for instructions
+- Download the latest version of `etcd` from the [**Releases**](https://github.com/etcd-io/etcd/releases/) page.
+- Add the directory to your System's PATH. See [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) for instructions.
 
 ## Getting Started
 
@@ -33,11 +61,19 @@ In the `rpc-server` directory: `go run .`
 
 In your terminal, run: `etcd --advertise-client-urls http://localhost:7000 --listen-client-urls http://127.0.0.1:7000`
 
-Test with Postman/Insomnia using the following request: `http://127.0.0.1:8080/HelloService/HelloMethod` with this JSON body:
+Test with Postman/Insomnia using the following request: `http://127.0.0.1:8080/HelloService/HelloMethod` with the following JSON body:
 
 ```json
 {
   "Name": "Timothy"
+}
+```
+
+You should receive the following response:
+
+```json
+{
+  "RespBody": "hello, Timothy"
 }
 ```
 

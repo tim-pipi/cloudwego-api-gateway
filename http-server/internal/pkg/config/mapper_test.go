@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -38,8 +39,11 @@ func TestUpdate_ExistingServiceName(t *testing.T) {
 
 func TestParseService_ExistingIDL(t *testing.T) {
 	// Invoke the ParseService function with an existing IDL file
-	serviceNames, err := GetServicesFromIDL("../idl/hello_api.thrift")
+	wd, _ := os.Getwd()
+	idlPath := wd + "/TestService.thrift"
+	serviceNames, err := GetServicesFromIDL(idlPath)
+
 	test.Assert(t, err == nil)
 	test.Assert(t, len(serviceNames) == 1)
-	test.Assert(t, serviceNames[0] == "HelloService")
+	test.Assert(t, serviceNames[0] == "TestService")
 }

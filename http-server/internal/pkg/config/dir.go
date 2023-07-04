@@ -9,6 +9,24 @@ import (
 const CONFIG_SUBPATH = "/cwgo/idl"
 const CONFIG_FILENAME = "config.json"
 
+type UserConfigDir interface {
+	get() string
+}
+
+type OsUserConfigDir struct{}
+
+func (OsUserConfigDir) get() string {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	configDir = configDir + CONFIG_SUBPATH
+	return configDir
+}
+
+var userConfigDir UserConfigDir = OsUserConfigDir{}
+
 // Copies the given file to the config directory
 func CopyToConfigDir(srcPath string, name string) error {
 	configDir := GetConfigDir()
@@ -70,12 +88,7 @@ func GetConfigPath() string {
 
 // Returns the path to the config directory on the given system
 func GetConfigDir() string {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	configDir = configDir + CONFIG_SUBPATH
-	return configDir
+	return userConfigDir.get() + "/cwgo/idl"
 }
 
 func checkConfigDir() bool {

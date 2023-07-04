@@ -32,6 +32,18 @@ func Execute() {
 	}
 }
 
+func CheckServices(services []string) error {
+	if len(services) == 0 {
+		return fmt.Errorf("no services found in IDL file")
+	}
+
+	if len(services) > 1 {
+		return fmt.Errorf("only one service is allowed per IDL file")
+	}
+
+	return nil
+}
+
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,

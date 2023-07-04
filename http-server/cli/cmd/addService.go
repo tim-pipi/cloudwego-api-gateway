@@ -27,17 +27,14 @@ var addServiceCmd = &cobra.Command{
 			return err
 		}
 
-		if len(services) == 0 {
-			return fmt.Errorf("no services found in IDL file")
-		}
-		if len(services) > 1 {
-			return fmt.Errorf("only one service is allowed per IDL file")
+		err = CheckServices(services)
+		if err != nil {
+			return err
 		}
 
 		config.CreateConfigDir()
 		configPath := config.GetConfigPath()
 		c, err := config.ReadConfig(configPath)
-
 		if err != nil {
 			return fmt.Errorf("error reading config file: %v", err)
 		}

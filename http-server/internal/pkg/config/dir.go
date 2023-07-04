@@ -21,7 +21,6 @@ func (OsUserConfigDir) get() string {
 		log.Fatal(err)
 	}
 
-	configDir = configDir + CONFIG_SUBPATH
 	return configDir
 }
 

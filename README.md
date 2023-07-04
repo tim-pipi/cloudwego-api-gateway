@@ -2,8 +2,8 @@
 
 This repository contains the code for the implementation of an API Gateway for Orbital 2023.
 
-CloudWeGo API Gateway is an API Gateway based on CloudWeGo projects, using technologies, such as Kitex - RPC framework,
-and Hertz - HTTP framework. This API Gateway can handle JSON-encoded HTTP requests and utilize Kitex's Generic-Call feature 
+CloudWeGo API Gateway is an API Gateway based on `CloudWeGo` projects, using technologies, such as `Kitex` - RPC framework,
+and `Hertz` - HTTP framework. This API Gateway can handle JSON-encoded HTTP requests and utilize `Kitex`'s Generic-Call feature 
 to convert these requests into Thrift binary format. The API Gateway will then route the requests to one of the backend 
 RPC servers obtained from the registry center.
 
@@ -51,7 +51,7 @@ Please install the following to get started with the project:
 ### Installing etcd
 
 - Download the latest version of `etcd` from the [**Releases**](https://github.com/etcd-io/etcd/releases/) page.
-- Add the directory to your System's PATH. See [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) for instructions.
+- Add the directory to your System's `PATH`. See [**this guide**](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) for instructions.
 
 ## Getting Started
 

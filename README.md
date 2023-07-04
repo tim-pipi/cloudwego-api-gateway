@@ -4,7 +4,7 @@ This repository contains the code for the implementation of an API Gateway for O
 
 CloudWeGo API Gateway is an API Gateway based on `CloudWeGo` projects, using technologies, such as `Kitex` - RPC framework,
 and `Hertz` - HTTP framework. This API Gateway can handle JSON-encoded HTTP requests and utilize `Kitex`'s Generic-Call feature 
-to convert these requests into Thrift binary format. The API Gateway will then route the requests to one of the backend 
+to convert these requests into `Thrift` binary format. The API Gateway will then route the requests to one of the backend 
 RPC servers obtained from the registry center.
 
 ## CloudWeGo

@@ -40,12 +40,14 @@ var addServiceCmd = &cobra.Command{
 		}
 
 		serviceName := services[0]
-		err = c.Update(serviceName, idl)
+		newIdlFilename := serviceName + ".thrift"
+
+		err = c.Update(serviceName, newIdlFilename)
 		if err != nil {
 			return fmt.Errorf("error updating configuration: %v", err)
 		}
 
-		err = config.CopyToConfigDir(idl, serviceName+".thrift")
+		err = config.CopyToConfigDir(idl, newIdlFilename)
 		if err != nil {
 			return fmt.Errorf("error copying IDL file to config directory: %v", err)
 		}

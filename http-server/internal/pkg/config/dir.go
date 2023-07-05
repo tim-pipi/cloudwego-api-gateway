@@ -60,15 +60,21 @@ func copyFile(srcPath string, destPath string) error {
 
 // Creates the config directory if it doesn't exist.
 func CreateConfigDir() {
-	exists := checkConfigDir()
+	e := checkConfigDir()
 
-	if !exists {
+	if !e {
 		configDir := GetConfigDir()
 		err := os.MkdirAll(configDir, os.ModePerm)
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
 
+	e, err := exists(GetConfigPath())
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !e {
 		config := NewConfig()
 		err = config.Write(GetConfigPath())
 

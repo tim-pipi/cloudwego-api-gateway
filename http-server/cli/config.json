@@ -1,4 +1,0 @@
-{
-  "last_updated": "",
-  "service_to_thrift": { "HelloService": "../idl/hello_api.thrift" }
-}

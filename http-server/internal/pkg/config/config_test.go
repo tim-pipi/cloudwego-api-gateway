@@ -16,7 +16,7 @@ func TestUpdate_NewThriftDir(t *testing.T) {
 	err := config.Update(wd)
 
 	test.Assert(t, err == nil)
-	test.Assert(t, config.ThriftDir == wd)
+	test.Assert(t, config.IDLDir == wd)
 }
 
 func TestUpdate_ResolvesRelativePaths(t *testing.T) {
@@ -26,7 +26,7 @@ func TestUpdate_ResolvesRelativePaths(t *testing.T) {
 	test.Assert(t, err == nil)
 
 	wd, _ := os.Getwd()
-	test.Assert(t, config.ThriftDir == wd)
+	test.Assert(t, config.IDLDir == wd)
 }
 
 func TestUpdate_InvalidDir(t *testing.T) {

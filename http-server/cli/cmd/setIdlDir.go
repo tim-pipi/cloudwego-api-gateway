@@ -13,7 +13,7 @@ import (
 // setIdlDirCmd represents the setIdlDir command
 var setIdlDirCmd = &cobra.Command{
 	Use:   "set",
-	Short: "Sets the directory for IDL files.",
+	Short: "Sets the IDL file directory for the API Gateway.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return fmt.Errorf("please provide the path to the IDL directory")

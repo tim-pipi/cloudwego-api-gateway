@@ -2,39 +2,39 @@ package config
 
 import (
 	"os"
-	"reflect"
 	"testing"
 
 	"github.com/cloudwego/thriftgo/pkg/test"
 )
 
 // Test case for updating config with a new service name
-func TestUpdate_NewServiceName(t *testing.T) {
-	// Invoke the UpdateConfig function with a new service name
+func TestUpdate_NewThriftDir(t *testing.T) {
 	var config ServiceConfig
-	config.ServiceNameToThriftFile = make(map[string]string)
+	// Get current directory
+	wd, _ := os.Getwd()
 
-	err := config.Update("NewService", "path/to/idl")
+	err := config.Update(wd)
+
 	test.Assert(t, err == nil)
-
-	data := make(map[string]string)
-	data["NewService"] = "path/to/idl"
-
-	test.Assert(t, reflect.DeepEqual(config.ServiceNameToThriftFile, data))
+	test.Assert(t, config.ThriftDir == wd)
 }
 
-// Test case for updating config with an existing service name
-func TestUpdate_ExistingServiceName(t *testing.T) {
-	// Invoke the UpdateConfig function with an existing service name
+func TestUpdate_ResolvesRelativePaths(t *testing.T) {
 	var config ServiceConfig
-	config.ServiceNameToThriftFile = make(map[string]string)
-	config.ServiceNameToThriftFile["ExistingService"] = "path/to/idl"
 
-	err := config.Update("ExistingService", "new/path/to/idl")
+	err := config.Update("../config")
+	test.Assert(t, err == nil)
 
-	errMsg := "service already exists"
+	wd, _ := os.Getwd()
+	test.Assert(t, config.ThriftDir == wd)
+}
+
+func TestUpdate_InvalidDir(t *testing.T) {
+	var config ServiceConfig
+	err := config.Update("path/to/idl")
+
 	test.Assert(t, err != nil)
-	test.Assert(t, err.Error() == errMsg)
+	test.Assert(t, err == os.ErrNotExist)
 }
 
 func TestParseService_ExistingIDL(t *testing.T) {

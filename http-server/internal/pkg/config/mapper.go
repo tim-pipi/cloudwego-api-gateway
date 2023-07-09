@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/cloudwego/thriftgo/parser"
@@ -11,8 +11,8 @@ import (
 
 // ServiceConfig type
 type ServiceConfig struct {
-	LastUpdated             string            `json:"last_updated"`
-	ServiceNameToThriftFile map[string]string `json:"service_to_thrift"`
+	LastUpdated string `json:"last_updated"`
+	ThriftDir   string `json:"thrift_dir"`
 }
 
 // Returns the services from the given IDL file
@@ -32,7 +32,7 @@ func GetServicesFromIDL(idlPath string) ([]string, error) {
 	return serviceNames, nil
 }
 
-// Reads the config file from the given path, creating a new one if it doesn't exist
+// Reads the config file from the given path
 func ReadConfig(path string) (*ServiceConfig, error) {
 	out, err := os.ReadFile(path)
 	if err != nil {
@@ -40,13 +40,8 @@ func ReadConfig(path string) (*ServiceConfig, error) {
 	}
 
 	var c ServiceConfig
-	err = json.Unmarshal(out, &c)
-	if err != nil {
+	if json.Unmarshal(out, &c); err != nil {
 		return nil, err
-	}
-
-	if c.ServiceNameToThriftFile == nil {
-		return NewConfig(), nil
 	}
 
 	return &c, nil
@@ -54,19 +49,27 @@ func ReadConfig(path string) (*ServiceConfig, error) {
 
 // Creates a new config
 func NewConfig() *ServiceConfig {
-	c := new(ServiceConfig)
-	c.ServiceNameToThriftFile = make(map[string]string)
-	return c
+	return new(ServiceConfig)
 }
 
 // Updates the ServiceConfig with the given serviceName and idlPath
-func (c *ServiceConfig) Update(serviceName string, idlPath string) error {
-	_, ok := c.ServiceNameToThriftFile[serviceName]
-	if ok {
-		return fmt.Errorf("service already exists")
+func (c *ServiceConfig) Update(thriftDir string) error {
+	fullThriftDir, err := filepath.Abs(thriftDir)
+
+	if err != nil {
+		return err
 	}
 
-	c.ServiceNameToThriftFile[serviceName] = idlPath
+	ok, err := exists(fullThriftDir)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return os.ErrNotExist
+	}
+
+	c.ThriftDir = fullThriftDir
 	return nil
 }
 
@@ -79,8 +82,7 @@ func (c *ServiceConfig) Write(path string) error {
 		return err
 	}
 
-	err = os.WriteFile(path, b, 0644)
-	if err != nil {
+	if os.WriteFile(path, b, 0644); err != nil {
 		return err
 	}
 

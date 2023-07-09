@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
 )
 
 type ClientPool struct {
@@ -20,19 +21,31 @@ type ClientPool struct {
 	mutex      sync.Mutex
 }
 
-var (
-	clientPool = &ClientPool{
+func NewClientPool(idlDir string) *ClientPool {
+	clientPool := &ClientPool{
 		serviceMap: make(map[string]genericclient.Client),
 	}
-)
+
+	sm, err := config.GetServiceMapFromDir(idlDir)
+
+	if err != nil {
+		klog.Fatalf("Error getting service map from IDL directory: %v", err)
+	}
+
+	for serviceName, idl := range sm {
+		clientPool.serviceMap[serviceName] = newClient(idl, serviceName)
+	}
+
+	return clientPool
+}
 
 // Performs the generic call to the RPC server
 // Calls the same client for the same service name
-func Call(ctx context.Context, c *app.RequestContext, idlPath string) {
+func (cp *ClientPool) Call(ctx context.Context, c *app.RequestContext) {
 	jsonBody := string(c.Request.BodyBytes())
 	klog.Info("Request Body: ", jsonBody)
 
-	cli := getClient(c, idlPath)
+	cli := cp.getClient(c)
 	serviceMethod := c.Param("ServiceMethod")
 	klog.Info("Service Method: ", serviceMethod)
 
@@ -67,17 +80,17 @@ func Call(ctx context.Context, c *app.RequestContext, idlPath string) {
 }
 
 // getClient returns the same client for the same service name
-func getClient(c *app.RequestContext, idlPath string) genericclient.Client {
-	clientPool.mutex.Lock()
-	defer clientPool.mutex.Unlock()
+func (cp *ClientPool) getClient(c *app.RequestContext) genericclient.Client {
+	cp.mutex.Lock()
+	defer cp.mutex.Unlock()
 
 	serviceName := c.Param("ServiceName")
 	klog.Info("Service Name: ", serviceName)
-	client, ok := clientPool.serviceMap[serviceName]
+	client, ok := cp.serviceMap[serviceName]
 
+	// TODD: Return error for getClient
 	if !ok {
-		client = newClient(idlPath, serviceName)
-		clientPool.serviceMap[serviceName] = client
+		return nil
 	}
 
 	return client
@@ -110,5 +123,6 @@ func newClient(idlPath string, serviceName string) genericclient.Client {
 		klog.Fatalf("new http generic client failed: %v", err)
 	}
 
+	klog.Info("Created new client for service: ", serviceName)
 	return cli
 }

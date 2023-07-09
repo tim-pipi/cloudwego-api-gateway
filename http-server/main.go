@@ -11,7 +11,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/tim-pipi/cloudwego-api-gateway/http-server/clientpool"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
 )
 
 func main() {
@@ -19,10 +18,7 @@ func main() {
 		server.WithHostPorts("127.0.0.1:8080"),
 	)
 
-	svcConfig, err := config.ReadConfig(config.GetConfigPath())
-	if err != nil {
-		log.Fatal(err)
-	}
+	cp := clientpool.NewClientPool("./idl")
 
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
 		// log.Printf("Sample middleware pre-handler")
@@ -46,9 +42,7 @@ func main() {
 			return
 		}
 
-		// TODO: Add a map of ServiceName to Thrift file
-		idlPath := config.GetConfigDir() + "/" + svcConfig.ServiceNameToThriftFile[ctx.Param("ServiceName")]
-		clientpool.Call(c, ctx, idlPath)
+		cp.Call(c, ctx)
 	})
 
 	h.Spin()

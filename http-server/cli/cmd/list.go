@@ -21,20 +21,25 @@ var listCmd = &cobra.Command{
 			return err
 		}
 
-		serviceMap, err := config.GetServiceMapFromDir(idlDir)
+		v, _ := cmd.Flags().GetBool("verbose")
+		services, err := config.GetServicesFromIDLDir(idlDir)
 
 		if err != nil {
 			return err
 		}
 
-		v, _ := cmd.Flags().GetBool("verbose")
-
 		fmt.Printf("%-20s\n", "Service Name")
-		for serviceName, filename := range serviceMap {
+		for _, service := range services {
 			if v {
-				fmt.Printf("%-20s|\t%-20s\n", serviceName, filename)
+				fmt.Printf("%-20s|\t%-20s\n", service.Name, service.Path)
+
+				for method, routes := range service.Routes {
+					for _, route := range routes {
+						fmt.Printf("%+20s|\t%-20s\n", method, route)
+					}
+				}
 			} else {
-				fmt.Printf("%-20s\n", serviceName)
+				fmt.Printf("%-20s\n", service.Name)
 			}
 		}
 

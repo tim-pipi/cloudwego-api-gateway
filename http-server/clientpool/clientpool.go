@@ -2,8 +2,6 @@ package clientpool
 
 import (
 	"context"
-	"io/fs"
-	"path/filepath"
 	"strings"
 	"sync"
 
@@ -28,17 +26,14 @@ func NewClientPool(idlDir string) *ClientPool {
 		serviceMap: make(map[string]genericclient.Client),
 	}
 
-	// Create clients for all the services in the directory
-	idls := find(idlDir, ".thrift")
-	for _, idl := range idls {
-		serviceNames, err := config.GetServicesFromIDL(idl)
-		if err != nil {
-			klog.Fatalf("Error getting services from IDL: %v", err)
-		}
+	sm, err := config.GetServiceMapFromDir(idlDir)
 
-		for _, serviceName := range serviceNames {
-			clientPool.serviceMap[serviceName] = newClient(idl, serviceName)
-		}
+	if err != nil {
+		klog.Fatalf("Error getting service map from IDL directory: %v", err)
+	}
+
+	for serviceName, idl := range sm {
+		clientPool.serviceMap[serviceName] = newClient(idl, serviceName)
 	}
 
 	return clientPool
@@ -130,18 +125,4 @@ func newClient(idlPath string, serviceName string) genericclient.Client {
 
 	klog.Info("Created new client for service: ", serviceName)
 	return cli
-}
-
-func find(root, ext string) []string {
-	var a []string
-	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
-		if e != nil {
-			return e
-		}
-		if filepath.Ext(d.Name()) == ext {
-			a = append(a, s)
-		}
-		return nil
-	})
-	return a
 }

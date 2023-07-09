@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,6 +14,41 @@ import (
 type ServiceConfig struct {
 	LastUpdated string `json:"last_updated"`
 	ThriftDir   string `json:"thrift_dir"`
+}
+
+// Returns a map of service name to IDL files paths for the specified directory
+func GetServiceMapFromDir(idlDir string) (map[string]string, error) {
+	idls := find(idlDir, ".thrift")
+
+	serviceMap := make(map[string]string)
+
+	for _, idl := range idls {
+		serviceNames, err := GetServicesFromIDL(idl)
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, serviceName := range serviceNames {
+			serviceMap[serviceName] = idl
+		}
+	}
+
+	return serviceMap, nil
+}
+
+func find(root, ext string) []string {
+	var a []string
+	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(d.Name()) == ext {
+			a = append(a, s)
+		}
+		return nil
+	})
+	return a
 }
 
 // Returns the services from the given IDL file

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cloudwego/thriftgo/pkg/test"
+	"github.com/stretchr/testify/assert"
 )
 
 // Test case for updating config with a new service name
@@ -15,35 +15,24 @@ func TestUpdate_NewThriftDir(t *testing.T) {
 
 	err := config.Update(wd)
 
-	test.Assert(t, err == nil)
-	test.Assert(t, config.IDLDir == wd)
+	assert.Nil(t, err)
+	assert.Equal(t, config.IDLDir, wd)
 }
 
 func TestUpdate_ResolvesRelativePaths(t *testing.T) {
 	var config ServiceConfig
 
 	err := config.Update("../config")
-	test.Assert(t, err == nil)
+	assert.Nil(t, err)
 
 	wd, _ := os.Getwd()
-	test.Assert(t, config.IDLDir == wd)
+	assert.Equal(t, config.IDLDir, wd)
 }
 
 func TestUpdate_InvalidDir(t *testing.T) {
 	var config ServiceConfig
 	err := config.Update("path/to/idl")
 
-	test.Assert(t, err != nil)
-	test.Assert(t, err == os.ErrNotExist)
-}
-
-func TestParseService_ExistingIDL(t *testing.T) {
-	// Invoke the ParseService function with an existing IDL file
-	wd, _ := os.Getwd()
-	idlPath := wd + "/TestService.thrift"
-	serviceNames, err := GetServicesFromIDL(idlPath)
-
-	test.Assert(t, err == nil)
-	test.Assert(t, len(serviceNames) == 1)
-	test.Assert(t, serviceNames[0] == "TestService")
+	assert.NotNil(t, err)
+	assert.Equal(t, err, os.ErrNotExist)
 }

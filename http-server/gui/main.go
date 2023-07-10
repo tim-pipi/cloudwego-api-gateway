@@ -7,6 +7,7 @@ import (
 
 	"github.com/awesome-gocui/gocui"
 	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/service"
 )
 
 const (
@@ -18,7 +19,7 @@ const (
 var (
 	viewArr  = []string{ServiceView, InfoView}
 	active   = 0
-	services []*config.Service
+	services []*service.Service
 )
 
 func setCurrentViewOnTop(g *gocui.Gui, name string) (*gocui.View, error) {
@@ -74,7 +75,7 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func printServiceInfo(v *gocui.View, s *config.Service) error {
+func printServiceInfo(v *gocui.View, s *service.Service) error {
 	fmt.Fprintf(v, "Selected service: \033[32;7m%s\033[0m\n", s.Name)
 	fmt.Fprintf(v, "IDL Path:\n\033[32;4m%s\033[0m\n", s.Path)
 	fmt.Fprintln(v, "\nRoutes:")
@@ -137,7 +138,7 @@ func refreshServiceView(g *gocui.Gui, v *gocui.View) error {
 	serviceView.Clear()
 
 	idlDir, _ := config.GetDirFromConfig()
-	ss, err := config.GetServicesFromIDLDir(idlDir)
+	ss, err := service.GetServicesFromIDLDir(idlDir)
 	if err != nil {
 		return err
 	}

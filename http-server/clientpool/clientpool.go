@@ -13,7 +13,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/service"
 
 	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
@@ -28,7 +28,7 @@ func NewClientPool(idlDir string) *ClientPool {
 		serviceMap: make(map[string]genericclient.Client),
 	}
 
-	services, err := config.GetServicesFromIDLDir(idlDir)
+	services, err := service.GetServicesFromIDLDir(idlDir)
 
 	if err != nil {
 		klog.Fatalf("Error getting service map from IDL directory: %v", err)

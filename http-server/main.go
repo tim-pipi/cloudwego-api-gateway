@@ -18,6 +18,8 @@ func main() {
 		server.WithHostPorts("127.0.0.1:8080"),
 	)
 
+	cp := clientpool.NewClientPool("./idl")
+
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
 		// log.Printf("Sample middleware pre-handler")
 		ctx.Next(c)
@@ -28,6 +30,7 @@ func main() {
 		// Check that JSON is valid
 		var req interface{}
 		err := json.Unmarshal(ctx.Request.BodyBytes(), &req)
+
 		if err != nil {
 			klog.Error("Invalid JSON: ", err.Error())
 			ctx.Error(err)
@@ -39,9 +42,8 @@ func main() {
 			return
 		}
 
-		clientpool.Call(c, ctx, "../idl/hello_api.thrift")
+		cp.Call(c, ctx)
 	})
 
-	// register(h)
 	h.Spin()
 }

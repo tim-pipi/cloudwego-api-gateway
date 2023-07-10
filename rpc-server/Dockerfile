@@ -1,0 +1,22 @@
+# Set baseImage to use Go's official Image
+FROM golang:1.20.5
+
+# Set destination for COPY
+WORKDIR /app
+
+# Copy the source code. Note the slash at the end, as explained in
+# https://docs.docker.com/engine/reference/builder/#copy
+COPY . .
+
+# Build
+RUN sh ./build.sh
+
+# Optional:
+# To bind to a TCP port, runtime parameters must be supplied to the docker command.
+# But we can document in the Dockerfile what ports
+# the application is going to listen on by default.
+# https://docs.docker.com/engine/reference/builder/#expose
+EXPOSE 8080
+
+# Run
+CMD ["./output/bootstrap.sh"]

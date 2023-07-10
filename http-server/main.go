@@ -11,12 +11,29 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/tim-pipi/cloudwego-api-gateway/http-server/clientpool"
+
+	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 )
 
 func main() {
+	serviceName := "api-gateway-http-server"
+
+	p := provider.NewOpenTelemetryProvider(
+		provider.WithServiceName(serviceName),
+		// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
+		provider.WithExportEndpoint("localhost:4317"),
+		provider.WithInsecure(),
+	)
+	defer p.Shutdown(context.Background())
+
+	tracer, cfg := hertztracing.NewServerTracer()
+
 	h := server.Default(
 		server.WithHostPorts("127.0.0.1:8080"),
+		tracer,
 	)
+	h.Use(hertztracing.ServerMiddleware(cfg))
 
 	cp := clientpool.NewClientPool("./idl")
 

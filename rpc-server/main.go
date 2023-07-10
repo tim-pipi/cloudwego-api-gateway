@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -14,6 +15,9 @@ import (
 	"github.com/tim-pipi/cloudwego-api-gateway/rpc-server/middleware"
 
 	"github.com/tim-pipi/cloudwego-api-gateway/rpc-server/pkg/utils"
+
+	"github.com/kitex-contrib/obs-opentelemetry/provider"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 // Constants for testing purposes
@@ -25,6 +29,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	serviceName := "HelloService"
+
+	p := provider.NewOpenTelemetryProvider(
+		provider.WithServiceName(serviceName),
+		provider.WithExportEndpoint("localhost:4317"),
+		provider.WithInsecure(),
+	)
+	defer p.Shutdown(context.Background())
 
 	var wg sync.WaitGroup
 	counter := new(utils.Counter)
@@ -49,6 +62,7 @@ func main() {
 			server.WithServiceAddr(addr),
 			server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("HelloService: Server %d called", count))),
 			server.WithMiddleware(middleware.ValidatorMW),
+			server.WithSuite(tracing.NewServerSuite()),
 		)
 
 		if err := svr.Run(); err != nil {

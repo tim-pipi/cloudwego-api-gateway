@@ -14,6 +14,8 @@ import (
 	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
+
+	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 type ClientPool struct {
@@ -26,14 +28,14 @@ func NewClientPool(idlDir string) *ClientPool {
 		serviceMap: make(map[string]genericclient.Client),
 	}
 
-	sm, err := config.GetServiceMapFromDir(idlDir)
+	services, err := config.GetServicesFromIDLDir(idlDir)
 
 	if err != nil {
 		klog.Fatalf("Error getting service map from IDL directory: %v", err)
 	}
 
-	for serviceName, idl := range sm {
-		clientPool.serviceMap[serviceName] = newClient(idl, serviceName)
+	for _, svc := range services {
+		clientPool.serviceMap[svc.Name] = newClient(svc.Path, svc.Name)
 	}
 
 	return clientPool
@@ -117,6 +119,7 @@ func newClient(idlPath string, serviceName string) genericclient.Client {
 	cli, err := genericclient.NewClient(serviceName, g,
 		kclient.WithResolver(r),
 		kclient.WithLoadBalancer(lb),
+		kclient.WithSuite(kitextracing.NewClientSuite()),
 	)
 
 	if err != nil {

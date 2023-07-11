@@ -1,17 +1,12 @@
-# Welcome to MkDocs
+# CloudWeGo API Documentation
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+This site contains the documentation for using CloudWeGo API Gateway.
 
-## Commands
+## Introduction
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+CloudWeGo API Gateway is a high-performance API Gateway built on top of [Kitex](https://github.com/cloudwego/kitex)
+and [Hertz](https://github.com/cloudwego/hertz).
 
-## Project layout
+The API Gateway can handle JSON-encoded HTTP requests and utilize Kitex's `Generic-Call` feature to convert these requests into `Thrift` binary format.
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+For more information on installation, see the [Setup](/setup) section.

@@ -4,21 +4,40 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"io"
+	"os"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/tim-pipi/cloudwego-api-gateway/http-server/clientpool"
 
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	hertzlogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
 	"github.com/hertz-contrib/obs-opentelemetry/provider"
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 )
 
 func main() {
-	serviceName := "api-gateway-http-server"
+	hlog.SetLogger(hertzlogrus.NewLogger())
+	// Set log level based on environment variable
+	hlog.SetLevel(hlog.LevelDebug)
 
+	logfile := os.Getenv("LOGFILE")
+	if logfile == "" {
+		logfile = "./output.log"
+	}
+
+	f, err := os.OpenFile(logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	mw := io.MultiWriter(os.Stderr, f)
+	hlog.SetOutput(mw)
+
+	serviceName := "api-gateway-http-server"
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(serviceName),
 		// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -38,9 +57,8 @@ func main() {
 	cp := clientpool.NewClientPool("./idl")
 
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
-		// log.Printf("Sample middleware pre-handler")
 		ctx.Next(c)
-		log.Printf("Request status code: %d", ctx.Response.StatusCode())
+		hlog.CtxDebugf(c, "Request status code: %d", ctx.Response.StatusCode())
 	})
 
 	h.Any("/:ServiceName/:ServiceMethod", func(c context.Context, ctx *app.RequestContext) {
@@ -49,7 +67,7 @@ func main() {
 		err := json.Unmarshal(ctx.Request.BodyBytes(), &req)
 
 		if err != nil {
-			klog.Error("Invalid JSON: ", err.Error())
+			hlog.Error("Invalid JSON: ", err.Error())
 			ctx.Error(err)
 			errorJSON := map[string]interface{}{
 				"error": ctx.Errors.Errors(),

@@ -9,6 +9,7 @@ require (
 	github.com/cloudwego/hertz v0.6.4
 	github.com/cloudwego/kitex v0.6.1
 	github.com/cloudwego/thriftgo v0.2.12
+	github.com/hertz-contrib/obs-opentelemetry/logging/logrus v0.1.1
 	github.com/hertz-contrib/obs-opentelemetry/provider v0.2.2
 	github.com/hertz-contrib/obs-opentelemetry/tracing v0.2.2
 	github.com/kitex-contrib/obs-opentelemetry v0.2.3
@@ -56,6 +57,7 @@ require (
 	github.com/oleiade/lane v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.1.0 // indirect
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

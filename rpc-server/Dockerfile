@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . .
 
 # Build
-RUN sh ./build.sh
+RUN go build -o rpc
 
 # Optional:
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
@@ -19,4 +19,4 @@ RUN sh ./build.sh
 EXPOSE 8080
 
 # Run
-CMD ["./output/bootstrap.sh"]
+CMD ["./rpc"]

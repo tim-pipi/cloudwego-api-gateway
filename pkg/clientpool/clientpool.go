@@ -14,7 +14,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/service"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
 
 	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )

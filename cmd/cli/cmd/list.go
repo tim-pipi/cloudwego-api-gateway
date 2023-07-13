@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/service"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
 )
 
 // listCmd represents the list command

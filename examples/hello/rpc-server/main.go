@@ -16,8 +16,8 @@ import (
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 
-	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api/helloservice"
-	"github.com/tim-pipi/cloudwego-api-gateway/rpc-server/middleware"
+	api "github.com/tim-pipi/cloudwego-api-gateway/examples/hello/rpc-server/kitex_gen/api/helloservice"
+	"github.com/tim-pipi/cloudwego-api-gateway/examples/hello/rpc-server/middleware"
 )
 
 func main() {

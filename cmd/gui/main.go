@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/awesome-gocui/gocui"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/service"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
 )
 
 const (

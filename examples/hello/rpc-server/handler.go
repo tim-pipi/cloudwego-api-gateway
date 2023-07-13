@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cloudwego/kitex/pkg/klog"
-	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api"
+	api "github.com/tim-pipi/cloudwego-api-gateway/examples/hello/rpc-server/kitex_gen/api"
 )
 
 var _ = klog.Info

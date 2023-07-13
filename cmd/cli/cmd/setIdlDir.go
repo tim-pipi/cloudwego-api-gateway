@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tim-pipi/cloudwego-api-gateway/http-server/internal/pkg/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
 )
 
 // setIdlDirCmd represents the setIdlDir command

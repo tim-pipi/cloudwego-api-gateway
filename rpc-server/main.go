@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"os"
-	"sync"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -18,13 +18,10 @@ import (
 
 	api "github.com/tim-pipi/cloudwego-api-gateway/rpc-server/kitex_gen/api/helloservice"
 	"github.com/tim-pipi/cloudwego-api-gateway/rpc-server/middleware"
-	"github.com/tim-pipi/cloudwego-api-gateway/rpc-server/pkg/utils"
 )
 
-// Constants for testing purposes
-const NUMSERVERS = 5
-
 func main() {
+	// Loggin
 	klog.SetLogger(kitexlogrus.NewLogger())
 	klog.SetLevel(klog.LevelDebug)
 
@@ -42,55 +39,49 @@ func main() {
 	mw := io.MultiWriter(os.Stderr, f)
 	klog.SetOutput(mw)
 
-	// Create the service registry
-	r, err := etcd.NewEtcdRegistry([]string{"localhost:2379"}) // r should not be reused.
+	// Service Registry
+	etcdURL := os.Getenv("ETCD_URL")
+	if etcdURL == "" {
+		etcdURL = "localhost:2379"
+	}
+	klog.Info("ETCD_URL: ", etcdURL)
+	r, err := etcd.NewEtcdRegistry([]string{etcdURL}) // r should not be reused.
 	if err != nil {
 		klog.Fatal(err)
 	}
 
+	// Observability
 	serviceName := "HelloService"
-
-	p := provider.NewOpenTelemetryProvider(
-		provider.WithServiceName(serviceName),
-		provider.WithExportEndpoint("localhost:4317"),
-		provider.WithInsecure(),
-	)
-	defer p.Shutdown(context.Background())
-
-	var wg sync.WaitGroup
-	counter := new(utils.Counter)
-
-	// Creates a new RPC server for the HelloService
-	createHelloServer := func() {
-		defer wg.Done()
-		count := counter.Increment()
-
-		addr, err := utils.FindAvailablePort()
-		if err != nil {
-			klog.Fatal(err)
-		}
-
-		svr := api.NewServer(
-			new(HelloServiceImpl),
-			server.WithRegistry(r),
-			server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-				ServiceName: "HelloService",
-			}),
-			server.WithServiceAddr(addr),
-			server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("HelloService: Server %d called", count))),
-			server.WithMiddleware(middleware.ValidatorMW),
-			server.WithSuite(tracing.NewServerSuite()),
+	allowMetrics := os.Getenv("ALLOW_METRICS")
+	if allowMetrics == "1" {
+		p := provider.NewOpenTelemetryProvider(
+			provider.WithServiceName(serviceName),
+			provider.WithExportEndpoint(":4317"),
+			provider.WithInsecure(),
 		)
-
-		if err := svr.Run(); err != nil {
-			klog.Fatal(err)
-		}
+		defer p.Shutdown(context.Background())
 	}
 
-	wg.Add(NUMSERVERS)
-	for i := 0; i < NUMSERVERS; i++ {
-		go createHelloServer()
+	// Server
+	container := os.Getenv("CONTAINER")
+	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:8888", container))
+	if err != nil {
+		klog.Fatal(err)
 	}
 
-	wg.Wait()
+	svr := api.NewServer(
+		new(HelloServiceImpl),
+		server.WithRegistry(r),
+		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
+			ServiceName: serviceName,
+		}),
+		server.WithServiceAddr(addr),
+		server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("%s called", serviceName))),
+		server.WithMiddleware(middleware.ValidatorMW),
+		server.WithSuite(tracing.NewServerSuite()),
+	)
+
+	if err := svr.Run(); err != nil {
+		klog.Fatal(err)
+	}
 }

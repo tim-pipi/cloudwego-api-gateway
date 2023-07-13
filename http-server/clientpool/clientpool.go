@@ -2,6 +2,7 @@ package clientpool
 
 import (
 	"context"
+	"os"
 	"strings"
 	"sync"
 
@@ -109,7 +110,12 @@ func newClient(idlPath string, serviceName string) genericclient.Client {
 		klog.Fatalf("new http pb thrift generic failed: %v", err)
 	}
 
-	r, err := etcd.NewEtcdResolver([]string{"localhost:2379"})
+	etcd_url := os.Getenv("ETCD_URL")
+	if etcd_url == "" {
+		etcd_url = "localhost:2379"
+	}
+
+	r, err := etcd.NewEtcdResolver([]string{etcd_url})
 	if err != nil {
 		klog.Fatalf("new etcd resolver failed: %v", err)
 	}

@@ -38,18 +38,22 @@ func main() {
 	hlog.SetOutput(mw)
 
 	serviceName := "api-gateway-http-server"
-	p := provider.NewOpenTelemetryProvider(
-		provider.WithServiceName(serviceName),
-		// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
-		provider.WithExportEndpoint("localhost:4317"),
-		provider.WithInsecure(),
-	)
-	defer p.Shutdown(context.Background())
+
+	allowMetrics := os.Getenv("ALLOW_METRICS")
+	if allowMetrics == "1" {
+		p := provider.NewOpenTelemetryProvider(
+			provider.WithServiceName(serviceName),
+			// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
+			provider.WithExportEndpoint(":4317"),
+			provider.WithInsecure(),
+		)
+		defer p.Shutdown(context.Background())
+	}
 
 	tracer, cfg := hertztracing.NewServerTracer()
 
 	h := server.Default(
-		server.WithHostPorts("127.0.0.1:8080"),
+		server.WithHostPorts(":8080"),
 		tracer,
 	)
 	h.Use(hertztracing.ServerMiddleware(cfg))
@@ -59,6 +63,10 @@ func main() {
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
 		ctx.Next(c)
 		hlog.CtxDebugf(c, "Request status code: %d", ctx.Response.StatusCode())
+	})
+
+	h.GET("/hello", func(c context.Context, ctx *app.RequestContext) {
+		ctx.JSON(consts.StatusOK, "Hello, hertz!")
 	})
 
 	h.Any("/:ServiceName/:ServiceMethod", func(c context.Context, ctx *app.RequestContext) {

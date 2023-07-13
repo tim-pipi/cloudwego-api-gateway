@@ -1,4 +1,4 @@
-package main
+package gui
 
 import (
 	"errors"
@@ -212,7 +212,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-func main() {
+func Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal, true)
 	if err != nil {
 		log.Panicln(err)

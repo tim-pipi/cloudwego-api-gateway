@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	// Loggin
+	// Logging
 	klog.SetLogger(kitexlogrus.NewLogger())
 	klog.SetLevel(klog.LevelDebug)
 

@@ -5,66 +5,87 @@ body: |-
   package main
 
   import (
+    "context"
     "fmt"
-    "sync"
+    "io"
+    "net"
+    "os"
 
     "github.com/cloudwego/kitex/pkg/rpcinfo"
     "github.com/cloudwego/kitex/server"
     etcd "github.com/kitex-contrib/registry-etcd"
 
-    "github.com/cloudwego/kitex/pkg/klog"
+    klog "github.com/cloudwego/kitex/pkg/klog"
+    kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
+    "github.com/kitex-contrib/obs-opentelemetry/provider"
+    "github.com/kitex-contrib/obs-opentelemetry/tracing"
 
     {{ToLower .Namespace}} "{{.ImportPath}}/{{ToLower .ServiceName}}"
-
     "{{.Module}}/middleware"
-    "{{.Module}}/pkg/utils"
   )
 
-  // Constants for testing purposes
-  const NUMSERVERS = 5
-  const DEFAULT_ETCD_PORT = 2380
-
   func main() {
-    // Create the service registry
-    r, err := etcd.NewEtcdRegistry([]string{fmt.Sprintf("localhost:%d", DEFAULT_ETCD_PORT)}) // r should not be reused.
+    // Logging
+    klog.SetLogger(kitexlogrus.NewLogger())
+    klog.SetLevel(klog.LevelDebug)
+
+    logfile := os.Getenv("LOGFILE")
+    if logfile == "" {
+      logfile = "./output.log"
+    }
+
+    f, err := os.OpenFile("./output.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
-      klog.Error(err.Error())
+      panic(err)
+    }
+    defer f.Close()
+
+    mw := io.MultiWriter(os.Stderr, f)
+    klog.SetOutput(mw)
+
+    // Service Registry
+    etcdURL := os.Getenv("ETCD_URL")
+    if etcdURL == "" {
+      etcdURL = "localhost:2379"
+    }
+    klog.Info("ETCD_URL: ", etcdURL)
+    r, err := etcd.NewEtcdRegistry([]string{etcdURL}) // r should not be reused.
+    if err != nil {
+      klog.Fatal(err)
     }
 
-    var wg sync.WaitGroup
-    counter := new(utils.Counter)
-
-    // Creates a new RPC server for the HelloService
-    create{{.ServiceName}}Server := func() {
-      defer wg.Done()
-      count := counter.Increment()
-
-      addr, err := utils.FindAvailablePort()
-      if err != nil {
-        klog.Error(err.Error())
-        panic(err)
-      }
-
-      svr := {{ToLower .Namespace}}.NewServer(
-        new({{.ServiceName}}Impl),
-        server.WithRegistry(r),
-        server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-          ServiceName: "{{.ServiceName}}",
-        }),
-        server.WithServiceAddr(addr),
-        server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("{{.ServiceName}}: Server %d called", count))),
-        server.WithMiddleware(middleware.ValidatorMW),
+    // Observability
+    serviceName := "{{.ServiceName}}}"
+    allowMetrics := os.Getenv("ALLOW_METRICS")
+    if allowMetrics == "1" {
+      p := provider.NewOpenTelemetryProvider(
+        provider.WithServiceName(serviceName),
+        provider.WithExportEndpoint(":4317"),
+        provider.WithInsecure(),
       )
-
-      if err := svr.Run(); err != nil {
-        klog.Error(err.Error())
-      }
+      defer p.Shutdown(context.Background())
     }
 
-    wg.Add(NUMSERVERS)
-    for i := 0; i < NUMSERVERS; i++ {
-      go create{{.ServiceName}}Server()
+    // Server
+    container := os.Getenv("CONTAINER")
+    addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:8888", container))
+    if err != nil {
+      klog.Fatal(err)
     }
 
-    wg.Wait()
+    svr := {{ToLower .Namespace}}.NewServer(
+      new({{.ServiceName}}Impl),
+      server.WithRegistry(r),
+      server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
+        ServiceName: serviceName,
+      }),
+      server.WithServiceAddr(addr),
+      server.WithMiddleware(middleware.MiddleWareLogger(fmt.Sprintf("%s called", serviceName))),
+      server.WithMiddleware(middleware.ValidatorMW),
+      server.WithSuite(tracing.NewServerSuite()),
+    )
+
+    if err := svr.Run(); err != nil {
+      klog.Fatal(err)
+    }
   }

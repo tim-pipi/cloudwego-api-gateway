@@ -11,36 +11,41 @@ import (
 func TestReadConfig(t *testing.T) {
 	// Create test cases using different environment variable values
 	testCases := []struct {
-		desc             string
-		idlDirEnv        string
-		etcdAddrEnv      string
-		logLevelEnv      string
-		logPathEnv       string
-		expectedIDLDir   string
-		expectedEtcdAddr string
-		expectedLogLevel string
-		expectedLogPath  string
+		desc                 string
+		idlDirEnv            string
+		etcdAddrEnv          string
+		logLevelEnv          string
+		logPathEnv           string
+		allowMetricsEnv      string
+		expectedIDLDir       string
+		expectedEtcdAddr     string
+		expectedLogLevel     string
+		expectedLogPath      string
+		expectedAllowMetrics string
 	}{
 		{
-			desc:             "All environment variables present",
-			idlDirEnv:        "/path/to/idl",
-			etcdAddrEnv:      "example.com:2379",
-			logLevelEnv:      "debug",
-			logPathEnv:       "/var/log/test.log",
-			expectedIDLDir:   "/path/to/idl",
-			expectedEtcdAddr: "example.com:2379",
-			expectedLogLevel: "debug",
-			expectedLogPath:  "/var/log/test.log",
+			desc:                 "All environment variables present",
+			idlDirEnv:            "/path/to/idl",
+			etcdAddrEnv:          "example.com:2379",
+			logLevelEnv:          "debug",
+			logPathEnv:           "/var/log/test.log",
+			allowMetricsEnv:      "1",
+			expectedIDLDir:       "/path/to/idl",
+			expectedEtcdAddr:     "example.com:2379",
+			expectedLogLevel:     "debug",
+			expectedLogPath:      "/var/log/test.log",
+			expectedAllowMetrics: "1",
 		},
 		{
-			desc:             "Missing IDL_DIR environment variable",
-			etcdAddrEnv:      "example.com:2379",
-			logLevelEnv:      "debug",
-			logPathEnv:       "/var/log/test.log",
-			expectedIDLDir:   "/etc/idl",
-			expectedEtcdAddr: "example.com:2379",
-			expectedLogLevel: "debug",
-			expectedLogPath:  "/var/log/test.log",
+			desc:                 "Missing IDL_DIR environment variable",
+			etcdAddrEnv:          "example.com:2379",
+			logLevelEnv:          "debug",
+			logPathEnv:           "/var/log/test.log",
+			expectedIDLDir:       "/etc/idl",
+			expectedEtcdAddr:     "example.com:2379",
+			expectedLogLevel:     "debug",
+			expectedLogPath:      "/var/log/test.log",
+			expectedAllowMetrics: "0",
 		},
 		// Add more test cases here if needed
 	}

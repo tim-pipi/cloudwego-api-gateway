@@ -2,7 +2,6 @@ package clientpool
 
 import (
 	"context"
-	"os"
 	"strings"
 	"sync"
 
@@ -19,12 +18,14 @@ import (
 	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
+// ClientPool is a map of service name to client
 type ClientPool struct {
 	serviceMap map[string]genericclient.Client
 	mutex      sync.Mutex
 }
 
-func NewClientPool(idlDir string) *ClientPool {
+// NewClientPool creates a new client pool
+func NewClientPool(idlDir, etcdAddr string) *ClientPool {
 	clientPool := &ClientPool{
 		serviceMap: make(map[string]genericclient.Client),
 	}
@@ -36,13 +37,13 @@ func NewClientPool(idlDir string) *ClientPool {
 	}
 
 	for _, svc := range services {
-		clientPool.serviceMap[svc.Name] = newClient(svc.Path, svc.Name)
+		clientPool.serviceMap[svc.Name] = newClient(svc.Path, svc.Name, etcdAddr)
 	}
 
 	return clientPool
 }
 
-// Performs the generic call to the RPC server
+// Perform a generic call to the RPC server through the service registry
 // Calls the same client for the same service name
 func (cp *ClientPool) Call(ctx context.Context, c *app.RequestContext) {
 	jsonBody := string(c.Request.BodyBytes())
@@ -99,7 +100,8 @@ func (cp *ClientPool) getClient(c *app.RequestContext) genericclient.Client {
 	return client
 }
 
-func newClient(idlPath string, serviceName string) genericclient.Client {
+// newClient creates a new client for the specified service
+func newClient(idlPath, serviceName, etcdAddr string) genericclient.Client {
 	p, err := generic.NewThriftFileProvider(idlPath)
 	if err != nil {
 		klog.Fatalf("new thrift file provider failed: %v", err)
@@ -110,12 +112,7 @@ func newClient(idlPath string, serviceName string) genericclient.Client {
 		klog.Fatalf("new http pb thrift generic failed: %v", err)
 	}
 
-	etcd_url := os.Getenv("ETCD_URL")
-	if etcd_url == "" {
-		etcd_url = "localhost:2379"
-	}
-
-	r, err := etcd.NewEtcdResolver([]string{etcd_url})
+	r, err := etcd.NewEtcdResolver([]string{etcdAddr})
 	if err != nil {
 		klog.Fatalf("new etcd resolver failed: %v", err)
 	}

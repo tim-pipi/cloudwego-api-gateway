@@ -137,8 +137,8 @@ func refreshServiceView(g *gocui.Gui, v *gocui.View) error {
 	}
 	serviceView.Clear()
 
-	idlDir, _ := config.GetDirFromConfig()
-	ss, err := service.GetServicesFromIDLDir(idlDir)
+	cfg := config.ReadConfig()
+	ss, err := service.GetServicesFromIDLDir(cfg.IDLDir)
 	if err != nil {
 		return err
 	}

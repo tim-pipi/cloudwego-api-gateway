@@ -19,6 +19,7 @@ import (
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 )
 
+// Starts the API Gateway server
 func Start(svcConfig *config.ServiceConfig) {
 	hlog.SetLogger(hertzlogrus.NewLogger())
 	// Set log level based on environment variable
@@ -30,11 +31,12 @@ func Start(svcConfig *config.ServiceConfig) {
 	}
 	defer f.Close()
 
+	// Write to stderr and log file
 	mw := io.MultiWriter(os.Stderr, f)
 	hlog.SetOutput(mw)
+	serviceName := "cloudwego-api-gateway"
 
-	serviceName := "api-gateway-http-server"
-
+	// Observability
 	allowMetrics := os.Getenv("ALLOW_METRICS")
 	if allowMetrics == "1" {
 		p := provider.NewOpenTelemetryProvider(
@@ -47,24 +49,24 @@ func Start(svcConfig *config.ServiceConfig) {
 	}
 
 	tracer, cfg := hertztracing.NewServerTracer()
-
 	h := server.Default(
 		server.WithHostPorts(":8080"),
 		tracer,
 	)
 	h.Use(hertztracing.ServerMiddleware(cfg))
 
-	cp := clientpool.NewClientPool(svcConfig.IDLDir, svcConfig.EtcdAddr)
-
+	// Status code middleware
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
 		ctx.Next(c)
 		hlog.CtxDebugf(c, "Request status code: %d", ctx.Response.StatusCode())
 	})
 
-	h.GET("/hello", func(c context.Context, ctx *app.RequestContext) {
-		ctx.JSON(consts.StatusOK, "Hello, hertz!")
+	// Sample /ping route
+	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+		ctx.JSON(consts.StatusOK, "Hello, CloudWeGo!")
 	})
 
+	cp := clientpool.NewClientPool(svcConfig.IDLDir, svcConfig.EtcdAddr)
 	h.Any("/:ServiceName/:ServiceMethod", func(c context.Context, ctx *app.RequestContext) {
 		// Check that JSON is valid
 		var req interface{}

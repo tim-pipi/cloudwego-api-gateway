@@ -16,14 +16,10 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all the current services in the API Gateway",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		idlDir, err := config.GetDirFromConfig()
-
-		if err != nil {
-			return err
-		}
+		cfg := config.ReadConfig()
 
 		v, _ := cmd.Flags().GetBool("verbose")
-		services, err := service.GetServicesFromIDLDir(idlDir)
+		services, err := service.GetServicesFromIDLDir(cfg.IDLDir)
 
 		if err != nil {
 			return err

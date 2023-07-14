@@ -1,4 +1,4 @@
-package main
+package gui
 
 import (
 	"errors"
@@ -137,8 +137,8 @@ func refreshServiceView(g *gocui.Gui, v *gocui.View) error {
 	}
 	serviceView.Clear()
 
-	idlDir, _ := config.GetDirFromConfig()
-	ss, err := service.GetServicesFromIDLDir(idlDir)
+	cfg := config.ReadConfig()
+	ss, err := service.GetServicesFromIDLDir(cfg.IDLDir)
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-func main() {
+func Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal, true)
 	if err != nil {
 		log.Panicln(err)

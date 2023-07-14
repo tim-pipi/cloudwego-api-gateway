@@ -43,7 +43,10 @@ type Service struct {
 
 // Returns a map of service name to IDL files paths for the specified directory
 func GetServicesFromIDLDir(idlDir string) ([]*Service, error) {
-	idls := find(idlDir, ".thrift")
+	idls, err := find(idlDir, ".thrift")
+	if err != nil {
+		return nil, err
+	}
 
 	ss := []*Service{}
 	for _, idl := range idls {
@@ -59,9 +62,9 @@ func GetServicesFromIDLDir(idlDir string) ([]*Service, error) {
 	return ss, nil
 }
 
-func find(root, ext string) []string {
+func find(root, ext string) ([]string, error) {
 	var a []string
-	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+	err := filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
 		if e != nil {
 			return e
 		}
@@ -70,7 +73,7 @@ func find(root, ext string) []string {
 		}
 		return nil
 	})
-	return a
+	return a, err
 }
 
 // Returns the services from the given IDL file

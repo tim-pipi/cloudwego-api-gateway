@@ -14,13 +14,13 @@ var templateNames []string = []string{
 	"readme_tpl.yaml",
 }
 
-// Copies all template files to the specified directory
-func CopyTemplateDir(dir string) error {
+// Copies all template files from kitex to the specified directory
+func CopyTemplateKitexDir(dir string) error {
 	kitexDir := "kitex"
 
 	for _, name := range templateNames {
 		filename := fmt.Sprintf("%s/%s", kitexDir, name)
-		if err := copyTemplate(filename, fmt.Sprintf("%s/%s", dir, name)); err != nil {
+		if err := CopyTemplateFile(filename, fmt.Sprintf("%s/%s", dir, name)); err != nil {
 			return err
 		}
 	}
@@ -29,7 +29,7 @@ func CopyTemplateDir(dir string) error {
 }
 
 // Copy a template file to the specified path
-func copyTemplate(name, to string) error {
+func CopyTemplateFile(name, to string) error {
 	data, err := templates.ReadFile(fmt.Sprintf("templates/%s", name))
 
 	if err != nil {

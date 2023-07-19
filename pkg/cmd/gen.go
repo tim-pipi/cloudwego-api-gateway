@@ -79,13 +79,14 @@ cwgo gen -s HelloService Generate RPC server code for the specified service
 
 		fileutils.CopyTemplateKitexDir(kitexDir)
 		fileutils.CopyTemplateFile("Dockerfile", path.Join(dir, "Dockerfile"))
+		module := cmd.Flag("module").Value.String()
 		// Execute kitex command on the current directory
 		kitexCmd := exec.Command(
 			"kitex",
 			"--thrift-plugin",
 			"validator",
 			"-module",
-			"github.com/tim-pipi/cloudwego-api-gateway",
+			module,
 			"--template-dir",
 			kitexDir,
 			idl,
@@ -107,4 +108,7 @@ func init() {
 	genCmd.Flags().StringP("idl", "i", "", "Thrift IDL file to use for generating RPC server code")
 	genCmd.Flags().StringP("service", "s", "", "Service name to use for generating RPC server code")
 	genCmd.MarkFlagsMutuallyExclusive("idl", "service")
+
+	genCmd.Flags().StringP("module", "m", "", "Go module name")
+	genCmd.MarkFlagRequired("module")
 }

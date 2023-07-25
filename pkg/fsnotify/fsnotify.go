@@ -7,7 +7,7 @@ import (
     "github.com/cloudwego/thriftgo/parser"
 )
 
-func newWatcher(dir string) *fsnotify.Watcher {
+func NewWatcher(dir string) *fsnotify.Watcher {
     watcher, err := fsnotify.NewWatcher()
     log.Println("Running Watcher for " + dir)
     
@@ -26,7 +26,7 @@ func newWatcher(dir string) *fsnotify.Watcher {
     return watcher
 }
 
-func runWatcher(watcher *fsnotify.Watcher) {
+func RunWatcher(watcher *fsnotify.Watcher) {
     for {
         select {
         case event, ok := <-watcher.Events:
@@ -55,21 +55,26 @@ func runWatcher(watcher *fsnotify.Watcher) {
     }
 }
 
-// func main() {
-// 	// Create new watcher.
-//     idlPath := "./pkg/fsnotify/idltest"
-//     watcher := newWatcher(idlPath)
-//     defer watcher.Close()
+// Example on how to run:
 
-//     // Copy and edit IDL file at /temp_idl/
-//     // rename IDL file to [idl_name]_temp.thrift
-//     // Validate with thriftgo
-//     // Copy over new IDL file to /http-server/idl/
-//     // Use new IDL file -> if error, use old IDL file, log error
-//     // -> if success, rename new IDL file, and replace old IDL file
+/* 
+func main() {
+	// Create new watcher.
+    idlPath := "./pkg/fsnotify/idltest"
+    watcher := newWatcher(idlPath)
+    defer watcher.Close()
 
-//     // Start listening for events.
-//     go runWatcher(watcher)
-//     // Block main goroutine forever.
-//     <-make(chan struct{})
-// }
+    // Copy and edit IDL file at /temp_idl/
+    // rename IDL file to [idl_name]_temp.thrift
+    // Validate with thriftgo
+    // Copy over new IDL file to /http-server/idl/
+    // Use new IDL file -> if error, use old IDL file, log error
+    // -> if success, rename new IDL file, and replace old IDL file
+
+    // Start listening for events.
+    go runWatcher(watcher)
+    // Block main goroutine forever.
+    <-make(chan struct{})
+}
+
+*/

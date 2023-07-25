@@ -58,7 +58,7 @@ func main() {
 	)
 	h.Use(hertztracing.ServerMiddleware(cfg))
 
-	cp := clientpool.NewClientPool("./idl")
+	cp := clientpool.NewClientPool("./idl", "etcd address here")
 
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
 		ctx.Next(c)

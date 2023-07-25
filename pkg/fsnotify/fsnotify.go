@@ -36,16 +36,17 @@ func WatchIDLFiles(idlDir string) {
 				// 	}
 				// }
                 if event.Has(fsnotify.Create) {
-                    log.Println("File %s created, parsing IDL file...", event.Name)
+                    log.Printf("File %s created, parsing IDL file...", event.Name)
                     _, err := parser.ParseFile(event.Name, []string{""}, true)
     
                     if err != nil {
-                        log.Println("File %s is invalid. Please ensure your file is correct.", event.Name)
+                        log.Printf("File %s is invalid. Please ensure your file is correct.", event.Name)
                         continue
                     }
                 
-                    log.Println("File %s is valid, performing hot reload...", event.Name)
-                    cmd := exec.Command("echo", "Hi there")
+                    log.Printf("File %s is valid, performing hot reload...", event.Name)
+                    // TODO: Update client here
+                    cmd := exec.Command("echo", "New IDL update")
 					cmd.Stdout = os.Stdout
 					cmd.Stderr = os.Stderr
 
@@ -61,10 +62,12 @@ func WatchIDLFiles(idlDir string) {
 			}
 		}
 	}()
-
+    
+    // Add idlDir
 	err = watcher.Add(idlDir)
 	if err != nil {
 		log.Fatal(err)
 	}
+    log.Println("Watching files at ", idlDir)
 	<-done
 }

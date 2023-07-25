@@ -12,10 +12,10 @@ import (
 	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/loadbalance"
-	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
-
 	kitextracing "github.com/kitex-contrib/obs-opentelemetry/tracing"
+	etcd "github.com/kitex-contrib/registry-etcd"
+
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
 )
 
 // ClientPool is a map of service name to client
@@ -26,12 +26,12 @@ type ClientPool struct {
 
 // NewClientPool creates a new client pool
 func NewClientPool(idlDir, etcdAddr string) *ClientPool {
+	klog.Infof("etcd address: %s", etcdAddr)
 	clientPool := &ClientPool{
 		serviceMap: make(map[string]genericclient.Client),
 	}
 
 	services, err := service.GetServicesFromIDLDir(idlDir)
-
 	if err != nil {
 		klog.Fatalf("Error getting service map from IDL directory: %v", err)
 	}
@@ -124,7 +124,6 @@ func newClient(idlPath, serviceName, etcdAddr string) genericclient.Client {
 		kclient.WithLoadBalancer(lb),
 		kclient.WithSuite(kitextracing.NewClientSuite()),
 	)
-
 	if err != nil {
 		klog.Fatalf("new http generic client failed: %v", err)
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/internal/dir"
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
 )
 
@@ -19,6 +20,12 @@ var listCmd = &cobra.Command{
 		cfg := config.ReadConfig()
 
 		v, _ := cmd.Flags().GetBool("verbose")
+
+		if ok, _ := dir.Exists(cfg.IDLDir); !ok {
+			fmt.Println("IDL directory does not exist.\nPlease create the directory or set the env variable IDL_DIR to the correct path.")
+			return nil
+		}
+
 		services, err := service.GetServicesFromIDLDir(cfg.IDLDir)
 
 		if err != nil {

@@ -33,7 +33,7 @@ func copyFile(srcPath string, destPath string) error {
 
 // Creates a directory if it doesn't exist
 func CreateDir(path string) error {
-	e, err := exists(path)
+	e, err := Exists(path)
 	if err != nil {
 		return err
 	}
@@ -48,8 +48,8 @@ func CreateDir(path string) error {
 	return nil
 }
 
-// Check if a given directory exists
-func exists(path string) (bool, error) {
+// Check if a given directory Exists
+func Exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil

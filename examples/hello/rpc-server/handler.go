@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cloudwego/kitex/pkg/klog"
+
 	api "github.com/tim-pipi/cloudwego-api-gateway/examples/hello/rpc-server/kitex_gen/api"
 )
 
@@ -18,8 +19,8 @@ func (s *HelloServiceImpl) HelloMethod(ctx context.Context, request *api.HelloRe
 	if request.Name == "" {
 		err = fmt.Errorf("name is required")
 		return
-	}	
-	
+	}
+
 	resp = &api.HelloResp{
 		RespBody: "hello, " + request.Name,
 	}

@@ -58,7 +58,11 @@ func main() {
 	)
 	h.Use(hertztracing.ServerMiddleware(cfg))
 
-	cp := clientpool.NewClientPool("./idl", "etcd address here")
+	etcdURL := os.Getenv("ETCD_URL")
+	if etcdURL == "" {
+		etcdURL = "localhost:2379"
+	}
+	cp := clientpool.NewClientPool("./idl", "etcdURL")
 
 	h.Use(func(c context.Context, ctx *app.RequestContext) {
 		ctx.Next(c)

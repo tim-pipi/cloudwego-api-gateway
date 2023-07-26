@@ -9,6 +9,7 @@ wait_for_url() {
 
 echo "Starting Integration Test"
 docker-compose -f ./examples/hello/docker-compose.yml up -d
+docker-compose -f ./examples/hello/docker-compose.yml logs
 while ! docker network inspect hello_default >/dev/null 2>&1; do sleep 1; done
 
 echo "Waiting for Docker instance to be ready..."

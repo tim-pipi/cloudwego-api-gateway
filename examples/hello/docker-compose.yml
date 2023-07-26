@@ -16,7 +16,7 @@ services:
   http-server:
     image: czsheng/cloudwego-api-gateway
     volumes:
-      - /home/zsheng/cloudwego-api-gateway/examples/hello/http-server/idl/:/etc/idl
+      - ../../tests/hello/idl/:/etc/idl
     environment:
       - ETCD_ADDR=http://etcd:2379
       - LOGFILE=/logs/http-server.log

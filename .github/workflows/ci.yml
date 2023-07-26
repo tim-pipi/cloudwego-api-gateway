@@ -1,9 +1,9 @@
 name: ci
 on:
   push:
-    branches: [$default-branch, tests]
+    branches: [$default-branch, testing]
   pull_request:
-    branches: [$default-branch, tests]
+    branches: [$default-branch, testing]
 permissions:
   contents: write
 jobs:

@@ -1,12 +1,13 @@
 package fsnotify
 
 import (
-    "log"
-    "os"
-    "os/exec"
+	"log"
+	"os"
+	"os/exec"
+	"time"
 
-    "github.com/fsnotify/fsnotify"
-    "github.com/cloudwego/thriftgo/parser"
+	"github.com/cloudwego/thriftgo/parser"
+	"github.com/fsnotify/fsnotify"
 )
 
 func WatchIDLFiles(idlDir string) {
@@ -19,46 +20,69 @@ func WatchIDLFiles(idlDir string) {
 	done := make(chan bool)
 
 	go func() {
+		// Using timer to prevent fsnotify from firing twice upon write
+		var (
+	        timer     *time.Timer
+	        lastEvent fsnotify.Event
+        )
+        timer = time.NewTimer(time.Millisecond)
+        <-timer.C // timer should be expired at first
 		for {
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
 					return
 				}
-                // if event.Has(fsnotify.Write) {
-				// 	log.Printf("File %s modified, triggering code generation...", event.Name)
-				// 	// Call the code generation process here
-				// 	cmd := exec.Command("go", "generate", "your/package/containing/generated/code")
-				// 	cmd.Stdout = os.Stdout
-				// 	cmd.Stderr = os.Stderr
-				// 	if err := cmd.Run(); err != nil {
-				// 		log.Println("Code generation failed:", err)
-				// 	}
-				// }
-                if event.Has(fsnotify.Create) {
-                    log.Printf("File %s created, parsing IDL file...", event.Name)
-                    _, err := parser.ParseFile(event.Name, []string{""}, true)
-    
-                    if err != nil {
-                        log.Printf("File %s is invalid. Please ensure your file is correct.", event.Name)
-                        continue
-                    }
-                
-                    log.Printf("File %s is valid, performing hot reload...", event.Name)
-                    // TODO: Update client here
-                    cmd := exec.Command("echo", "New IDL update")
-					cmd.Stdout = os.Stdout
-					cmd.Stderr = os.Stderr
+				lastEvent = event
+				timer.Reset(time.Millisecond * 100)
 
-                    if err := cmd.Run(); err != nil {
-						log.Println("Code generation failed:", err)
-					}
-                }
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
 				}
 				log.Println("Error:", err)
+
+			case <- timer.C:
+				// Checking for new IDL files
+                if lastEvent.Has(fsnotify.Create) {
+                    log.Printf("File %s created, parsing IDL file...", lastEvent.Name)
+                    _, err := parser.ParseFile(lastEvent.Name, []string{""}, true)
+    
+                    if err != nil {
+                        log.Printf("File %s is invalid. Please ensure your file is correct.", lastEvent.Name)
+                        continue
+                    }
+                
+                    log.Printf("File %s is valid, performing hot reload...", lastEvent.Name)
+                    // TODO: Update client since IDL is valid
+                    cmd := exec.Command("echo", "Updating Client...")
+					cmd.Stdout = os.Stdout
+					cmd.Stderr = os.Stderr
+
+                    if err := cmd.Run(); err != nil {
+						log.Println("Client update failed: ", err)
+					}
+                }
+				// Upating existing IDL files
+				if lastEvent.Has(fsnotify.Write) {
+					log.Printf("File %s modified, parsing IDL file...", lastEvent.Name)
+                    _, err := parser.ParseFile(lastEvent.Name, []string{""}, true)
+    
+                    if err != nil {
+                        log.Printf("File %s is invalid. Please ensure your file is correct.", lastEvent.Name)
+                        continue
+                    }
+                
+                    log.Printf("File %s is valid, performing hot reload...", lastEvent.Name)
+                    // TODO: Update client since IDL is valid
+                    cmd := exec.Command("echo", "Updating Client...")
+					cmd.Stdout = os.Stdout
+					cmd.Stderr = os.Stderr
+
+                    if err := cmd.Run(); err != nil {
+						log.Println("Client update failed: ", err)
+					}
+				}
 			}
 		}
 	}()

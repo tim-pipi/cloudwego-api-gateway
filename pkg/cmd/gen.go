@@ -75,10 +75,8 @@ cwgo gen -s HelloService Generate RPC server code for the specified service
 		}
 
 		kitexDir := path.Join(dir, "kitex-template")
-		os.Mkdir(kitexDir, 0777)
 
-		fileutils.CopyTemplateKitexDir(kitexDir)
-		fileutils.CopyTemplateFile("Dockerfile", path.Join(dir, "Dockerfile"))
+		fileutils.CopyAllTemplateFiles(dir)
 		module := cmd.Flag("module").Value.String()
 		// Execute kitex command on the current directory
 		kitexCmd := exec.Command(

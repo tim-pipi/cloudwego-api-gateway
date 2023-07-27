@@ -142,4 +142,5 @@ func (cp *ClientPool) UpdateClient(idlDir, etcdAddr string) error {
 	for _, svc := range services {
 		cp.serviceMap[svc.Name] = newClient(svc.Path, svc.Name, etcdAddr)
 	}
+	return nil
 }

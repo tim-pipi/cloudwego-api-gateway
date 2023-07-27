@@ -3,7 +3,6 @@ package fsnotify
 import (
 	"log"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/tim-pipi/cloudwego-api-gateway/pkg/clientpool"
@@ -12,7 +11,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// May need to add ClientPool as a param here for updation
+// Watches changes to IDL files in a specified directory
 func WatchIDLFiles(idlDir string, cp *clientpool.ClientPool) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -57,7 +56,7 @@ func WatchIDLFiles(idlDir string, cp *clientpool.ClientPool) {
                     }
                 
                     log.Printf("File %s is valid, updating client...", lastEvent.Name)
-                    // TODO: Update client since IDL is valid
+                    // Update client when IDL is valid
 					etcdAddr := os.Getenv("ETCD_ADDR")
 					err = cp.UpdateClient(idlDir, etcdAddr)
 					
@@ -76,12 +75,11 @@ func WatchIDLFiles(idlDir string, cp *clientpool.ClientPool) {
                     }
                 
                     log.Printf("File %s is valid, performing hot reload...", lastEvent.Name)
-                    // TODO: Update client since IDL is valid
-                    cmd := exec.Command("echo", "Updating Client...")
-					cmd.Stdout = os.Stdout
-					cmd.Stderr = os.Stderr
-
-                    if err := cmd.Run(); err != nil {
+                    // Update client when IDL is valid
+					etcdAddr := os.Getenv("ETCD_ADDR")
+					err = cp.UpdateClient(idlDir, etcdAddr)
+					
+                    if err != nil {
 						log.Println("Client update failed: ", err)
 					}
 				}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
 	"github.com/tim-pipi/cloudwego-api-gateway/pkg/clientpool"
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/fsnotify"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	hertzlogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
@@ -67,6 +68,7 @@ func Start(svcConfig *config.ServiceConfig) {
 	})
 
 	cp := clientpool.NewClientPool(svcConfig.IDLDir, svcConfig.EtcdAddr)
+	fsnotify.WatchIDLFiles(svcConfig.IDLDir, cp)
 	h.Any("/:ServiceName/:ServiceMethod", func(c context.Context, ctx *app.RequestContext) {
 		// Check that JSON is valid
 		var req interface{}

@@ -7,6 +7,7 @@ require (
 	github.com/cloudwego/hertz v0.6.6
 	github.com/cloudwego/kitex v0.6.1
 	github.com/cloudwego/thriftgo v0.2.12
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/hertz-contrib/obs-opentelemetry/logging/logrus v0.1.1
 	github.com/hertz-contrib/obs-opentelemetry/provider v0.2.2
 	github.com/hertz-contrib/obs-opentelemetry/tracing v0.2.2
@@ -33,7 +34,6 @@ require (
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/gdamore/tcell/v2 v2.4.0 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect

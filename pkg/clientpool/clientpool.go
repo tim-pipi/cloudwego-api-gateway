@@ -131,3 +131,16 @@ func newClient(idlPath, serviceName, etcdAddr string) genericclient.Client {
 	klog.Info("Created new client for service: ", serviceName)
 	return cli
 }
+
+func (cp *ClientPool) UpdateClient(idlDir, etcdAddr string) error {
+	services, err := service.GetServicesFromIDLDir(idlDir)
+	if err != nil {
+		klog.Fatalf("Error getting service map from IDL directory: %v", err)
+		return err
+	}
+
+	for _, svc := range services {
+		cp.serviceMap[svc.Name] = newClient(svc.Path, svc.Name, etcdAddr)
+	}
+	return nil
+}

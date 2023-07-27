@@ -11,10 +11,11 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/dir"
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/fileutils"
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/config"
 )
 
 var _ = path.Join
@@ -47,7 +48,6 @@ cwgo gen -s HelloService Generate RPC server code for the specified service
 			}
 
 			services, err := service.GetServicesFromIDLDir(cfg.IDLDir)
-
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)

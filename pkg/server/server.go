@@ -8,16 +8,15 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
-
-	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
-	"github.com/tim-pipi/cloudwego-api-gateway/pkg/clientpool"
-	"github.com/tim-pipi/cloudwego-api-gateway/pkg/fsnotify"
-
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	hertzlogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
 	"github.com/hertz-contrib/obs-opentelemetry/provider"
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
+
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/clientpool"
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/config"
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/fsnotify"
 )
 
 // Starts the API Gateway server
@@ -73,7 +72,6 @@ func Start(svcConfig *config.ServiceConfig) {
 		// Check that JSON is valid
 		var req interface{}
 		err := json.Unmarshal(ctx.Request.BodyBytes(), &req)
-
 		// TODO - return proper HTTP status codes based on RPC server error
 		if err != nil {
 			hlog.Error("Invalid JSON: ", err.Error())

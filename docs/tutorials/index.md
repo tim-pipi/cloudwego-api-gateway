@@ -115,9 +115,6 @@ type EchoServiceImpl struct{}
 // Echo implements the EchoServiceImpl interface.
 func (s *EchoServiceImpl) Echo(ctx context.Context, request *api.EchoReq) (resp *api.EchoResp, err error) {
 	// TODO: Your code here...
-	resp = &api.EchoResp{
-		Response: request.Message,
-	}
 	return
 }
 ```

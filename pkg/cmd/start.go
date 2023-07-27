@@ -5,7 +5,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/config"
 	"github.com/tim-pipi/cloudwego-api-gateway/pkg/server"
 )
 

@@ -7,9 +7,10 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/dir"
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/config"
 )
 
 // listCmd represents the list command
@@ -27,7 +28,6 @@ var listCmd = &cobra.Command{
 		}
 
 		services, err := service.GetServicesFromIDLDir(cfg.IDLDir)
-
 		if err != nil {
 			return err
 		}

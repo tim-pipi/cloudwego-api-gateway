@@ -6,8 +6,9 @@ import (
 	"log"
 
 	"github.com/awesome-gocui/gocui"
-	"github.com/tim-pipi/cloudwego-api-gateway/internal/config"
+
 	"github.com/tim-pipi/cloudwego-api-gateway/internal/service"
+	"github.com/tim-pipi/cloudwego-api-gateway/pkg/config"
 )
 
 const (
@@ -82,7 +83,6 @@ func printServiceInfo(v *gocui.View, s *service.Service) error {
 	for method, routes := range s.Routes {
 		for _, route := range routes {
 			fmt.Fprintf(v, "\033[33;7m %s \033[0m: \033[35;1m%s\033[0m\n", method, route)
-
 		}
 	}
 	return nil
@@ -261,5 +261,4 @@ func Run() {
 	if err := g.MainLoop(); err != nil && !errors.Is(err, gocui.ErrQuit) {
 		log.Panicln(err)
 	}
-
 }

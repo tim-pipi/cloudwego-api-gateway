@@ -11,30 +11,26 @@ body: |-
     "net"
     "os"
 
+    klog "github.com/cloudwego/kitex/pkg/klog"
     "github.com/cloudwego/kitex/pkg/rpcinfo"
     "github.com/cloudwego/kitex/server"
-    etcd "github.com/kitex-contrib/registry-etcd"
-
-    klog "github.com/cloudwego/kitex/pkg/klog"
     kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
     "github.com/kitex-contrib/obs-opentelemetry/provider"
     "github.com/kitex-contrib/obs-opentelemetry/tracing"
+    etcd "github.com/kitex-contrib/registry-etcd"
 
     {{ToLower .Namespace}} "{{.ImportPath}}/{{ToLower .ServiceName}}"
     "{{.Module}}/middleware"
+    "github.com/tim-pipi/cloudwego-api-gateway/pkg/config"
   )
 
   func main() {
+    svcConfig := config.ReadConfig()
     // Logging
     klog.SetLogger(kitexlogrus.NewLogger())
     klog.SetLevel(klog.LevelDebug)
 
-    logfile := os.Getenv("LOGFILE")
-    if logfile == "" {
-      logfile = "./output.log"
-    }
-
-    f, err := os.OpenFile("./output.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    f, err := os.OpenFile(svcConfig.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
       panic(err)
     }
@@ -44,19 +40,15 @@ body: |-
     klog.SetOutput(mw)
 
     // Service Registry
-    etcdURL := os.Getenv("ETCD_URL")
-    if etcdURL == "" {
-      etcdURL = "localhost:2379"
-    }
-    klog.Info("ETCD_URL: ", etcdURL)
-    r, err := etcd.NewEtcdRegistry([]string{etcdURL}) // r should not be reused.
+    klog.Info("ETCD_ADDR: ", svcConfig.EtcdAddr)
+    r, err := etcd.NewEtcdRegistry([]string{svcConfig.EtcdAddr}) // r should not be reused.
     if err != nil {
       klog.Fatal(err)
     }
 
     // Observability
-    serviceName := "{{.ServiceName}}}"
-    allowMetrics := os.Getenv("ALLOW_METRICS")
+    serviceName := "{{.ServiceName}}"
+    allowMetrics := svcConfig.AllowMetrics
     if allowMetrics == "1" {
       p := provider.NewOpenTelemetryProvider(
         provider.WithServiceName(serviceName),

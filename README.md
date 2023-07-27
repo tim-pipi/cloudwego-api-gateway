@@ -31,7 +31,7 @@ when you develop microservices, Kitex can be a good choice.
 
 ## Useful Links
 
-- [Guide](https://github.com/tim-pipi/cloudwego-api-gateway/deployments/activity_log?environment=github-pages)
+- [Guide](https://tim-pipi.github.io/cloudwego-api-gateway/)
 - [Milestone I Submission](https://drive.google.com/drive/u/0/folders/1mm--TjLNb5FZXAquGjFT_0S7Nf_3PMf1)
 - [Milestone II Submission](https://drive.google.com/drive/folders/1ZqQKP6_HXSqQ5CiKRAptCXUhe7ADz-Yu?usp=drive_link)
 - [Milestone III Submission](to be added)

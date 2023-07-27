@@ -34,8 +34,6 @@ services:
       - CONTAINER=rpc-server
     volumes:
       - gateway-logs:/logs
-    ports:
-      - "8888:8888"
     depends_on:
       - etcd
 volumes:

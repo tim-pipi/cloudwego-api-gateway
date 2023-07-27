@@ -42,7 +42,7 @@ struct EchoResp {
 }
 
 service EchoService {
-    EchoResp echo(EchoReq) (api.get="/EchoService/echo")
+    EchoResp echo(1: EchoReq request) (api.get="/EchoService/echo")
 }
 ```
 
